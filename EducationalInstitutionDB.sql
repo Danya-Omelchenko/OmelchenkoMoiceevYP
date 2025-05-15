@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Май 15 2025 г., 07:17
+-- Время создания: Май 15 2025 г., 11:23
 -- Версия сервера: 8.0.30
 -- Версия PHP: 8.1.9
 
@@ -32,6 +32,17 @@ CREATE TABLE `Departments` (
   `DepartmentName` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `Departments`
+--
+
+INSERT INTO `Departments` (`DepartmentID`, `DepartmentName`) VALUES
+(1, 'ВТ'),
+(2, 'АД'),
+(3, 'МП'),
+(4, 'ЛП'),
+(5, 'УК');
+
 -- --------------------------------------------------------
 
 --
@@ -48,6 +59,16 @@ CREATE TABLE `DisabledStudents` (
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `DisabledStudents`
+--
+
+INSERT INTO `DisabledStudents` (`DisabledStudentID`, `StudentID`, `StatusOrder`, `StatusStart`, `StatusEnd`, `DisabilityType`, `Notes`) VALUES
+(2, 2, 'Приказ №2', '2025-10-01', '2027-04-12', 'Сенсорная', 'Инвалид'),
+(3, 3, 'Приказ №3', '2020-09-01', '2024-11-30', 'Умственная', 'Инвалид'),
+(4, 4, 'Приказ №4', '2023-01-12', '2027-01-30', 'Физическая', 'Инвалид'),
+(5, 7, 'Приказ №5', '2023-01-12', '2027-01-30', 'Сенсорная', 'Инвалид');
+
 -- --------------------------------------------------------
 
 --
@@ -62,6 +83,15 @@ CREATE TABLE `Dormitories` (
   `CheckOutDate` date DEFAULT NULL,
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `Dormitories`
+--
+
+INSERT INTO `Dormitories` (`DormitoryID`, `StudentID`, `RoomNumber`, `CheckInDate`, `CheckOutDate`, `Notes`) VALUES
+(1, 2, 102, '2022-09-01', '2023-06-30', 'Проживает'),
+(2, 3, 103, '2022-09-01', '2021-06-30', 'Проживает'),
+(3, 4, 104, '2022-09-01', '2024-06-30', 'Проживает');
 
 -- --------------------------------------------------------
 
@@ -89,6 +119,19 @@ CREATE TABLE `Files` (
   `FileType` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `Files`
+--
+
+INSERT INTO `Files` (`FileID`, `StudentID`, `FilePath`, `FileType`) VALUES
+(1, 1, '/files/student1.pdf', 'PDF'),
+(2, 2, '/files/student2.pdf', 'PDF'),
+(3, 3, '/files/student3.pdf', 'PDF'),
+(4, 4, '/files/student4.pdf', 'PDF'),
+(5, 5, '/files/student3.pdf', 'PDF'),
+(6, 6, '/files/student4.pdf', 'PDF'),
+(7, 7, '/files/student5.pdf', 'PDF');
+
 -- --------------------------------------------------------
 
 --
@@ -103,6 +146,15 @@ CREATE TABLE `Orphans` (
   `StatusEnd` date NOT NULL,
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `Orphans`
+--
+
+INSERT INTO `Orphans` (`OrphanID`, `StudentID`, `StatusOrder`, `StatusStart`, `StatusEnd`, `Notes`) VALUES
+(2, 2, 'Приказ №2', '2025-10-01', '2027-04-12', 'Сирота'),
+(3, 3, 'Приказ №3', '2023-01-12', '2027-01-30', 'Сирота'),
+(4, 4, 'Приказ №4', '2024-04-01', '2028-06-03', 'Сирота');
 
 -- --------------------------------------------------------
 
@@ -121,6 +173,14 @@ CREATE TABLE `RiskGroups` (
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `RiskGroups`
+--
+
+INSERT INTO `RiskGroups` (`RiskGroupID`, `StudentID`, `Type`, `RegistrationDate`, `RegistrationReason`, `RemovalDate`, `RemovalReason`, `Notes`) VALUES
+(1, 2, 'СОП', '2019-09-01', 'Проблемы с поведением', '2023-06-30', 'Улучшение поведения', 'СОП'),
+(2, 3, 'Группа риска', '2017-09-01', 'Проблемы с учебой', '2021-06-30', 'Улучшение успеваемости', 'Группа риска');
+
 -- --------------------------------------------------------
 
 --
@@ -132,6 +192,17 @@ CREATE TABLE `Rooms` (
   `RoomNumber` int NOT NULL,
   `Capacity` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `Rooms`
+--
+
+INSERT INTO `Rooms` (`RoomID`, `RoomNumber`, `Capacity`) VALUES
+(1, 101, 2),
+(2, 102, 2),
+(3, 103, 2),
+(4, 104, 2),
+(5, 105, 2);
 
 -- --------------------------------------------------------
 
@@ -148,6 +219,17 @@ CREATE TABLE `SocialScholarships` (
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `SocialScholarships`
+--
+
+INSERT INTO `SocialScholarships` (`ScholarshipID`, `StudentID`, `DocumentBasis`, `PaymentStart`, `PaymentEnd`, `Notes`) VALUES
+(6, 1, 'Приказ №1', '2018-09-01', '2022-12-01', 'Социальная стипендия'),
+(7, 2, 'Приказ №2', '2019-09-01', '2023-06-30', 'Социальная стипендия'),
+(8, 3, 'Приказ №3', '2022-09-01', '2024-08-11', 'Социальная стипендия'),
+(9, 6, 'Приказ №4', '2020-09-01', '2024-06-30', 'Социальная стипендия'),
+(10, 7, 'Приказ №5', '2019-09-01', '2023-09-03', 'Социальная стипендия');
+
 -- --------------------------------------------------------
 
 --
@@ -162,6 +244,17 @@ CREATE TABLE `SpecialNeedsStudents` (
   `StatusEnd` date NOT NULL,
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `SpecialNeedsStudents`
+--
+
+INSERT INTO `SpecialNeedsStudents` (`SpecialNeedsStudentID`, `StudentID`, `StatusOrder`, `StatusStart`, `StatusEnd`, `Notes`) VALUES
+(1, 1, 'Приказ №1', '2025-10-01', '2026-04-12', 'ОВЗ'),
+(2, 2, 'Приказ №2', '2023-01-12', '2027-01-30', 'ОВЗ'),
+(3, 3, 'Приказ №3', '2023-01-12', '2025-01-30', 'ОВЗ'),
+(4, 4, 'Приказ №4', '2025-10-01', '2027-04-12', 'ОВЗ'),
+(5, 5, 'Приказ №5', '2023-01-12', '2027-01-30', 'ОВЗ');
 
 -- --------------------------------------------------------
 
@@ -180,6 +273,14 @@ CREATE TABLE `SPPPMeetings` (
   `Decision` text,
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `SPPPMeetings`
+--
+
+INSERT INTO `SPPPMeetings` (`MeetingID`, `StudentID`, `MeetingDate`, `CallReason`, `PresentEmployees`, `PresentRepresentatives`, `CallCause`, `Decision`, `Notes`) VALUES
+(3, 1, '2024-10-01', 'Проблемы с успеваемостью', 'Плешков', 'Родители', 'Низкая успеваемость', 'Наблюдение', 'СППП'),
+(4, 2, '2023-10-01', 'Проблемы с поведением', 'Петрова', 'Родители', 'Нарушение дисциплины', 'Наблюдение', 'СППП');
 
 -- --------------------------------------------------------
 
@@ -209,6 +310,21 @@ CREATE TABLE `Students` (
   `IsActive` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `Students`
+--
+
+INSERT INTO `Students` (`StudentID`, `LastName`, `FirstName`, `MiddleName`, `BirthDate`, `Gender`, `ContactNumber`, `EducationLevel`, `Department`, `GroupName`, `FundingType`, `AdmissionYear`, `GraduationYear`, `DismissalInfo`, `DismissalDate`, `Notes`, `ParentsInfo`, `Penalties`, `IsActive`) VALUES
+(1, 'Омельченко', 'Данил', 'Андреевич', '2006-03-28', 'Мужской', '+79123456789', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2022, 2026, NULL, NULL, 'Хорошист', 'Мать: Омельченко Светлана', 'Нет', 1),
+(2, 'Елышева', 'Анна', 'Сергеевна', '2006-08-22', 'Женский', '+79221234567', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2019, 2023, NULL, NULL, 'Хорошист', 'Отец: Елтышев Сергей', 'Нет', 1),
+(3, 'Сидоров', 'Алексей', 'Петрович', '2003-11-30', 'Мужской', '+79324567890', '10 кл.', 'МП', 'МП-19-1', 'внебюджет', 2016, 2019, 'Отчислен', '2020-06-15', 'Троечник', 'Мать: Сидорова Ольга', 'Да', 1),
+(4, 'Вараксина', 'Елена', 'Александровна', '2007-03-10', 'Женский', '+79427890123', '9 кл.', 'ЛП', 'ЛП-23-4', 'Бюджет', 2023, 2027, NULL, NULL, 'Отличник', 'Отец: Вараксин Александр', 'Нет', 1),
+(5, 'Моисеев', 'Андрей', 'Игоревич', '2006-07-18', 'Мужской', '+79522345678', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2019, 2023, NULL, NULL, 'Хорошист', 'Мать: Моисеева Ирина', 'Нет', 1),
+(6, 'Плешков', 'Данил', 'Александрович', '2006-05-15', 'Мужской', '+79123426729', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2022, 2026, NULL, NULL, 'Отличник', 'Мать: ПлешковА Анна', 'Нет', 1),
+(7, 'Петрова', 'Мария', 'Сергеевна', '2003-08-22', 'Женский', '+79221132234', '11 кл.', 'АД', 'АД-19-2', 'Внебюджет', 2019, 2023, NULL, NULL, 'Хорошист', 'Отец: Петров Сергей', 'Нет', 1),
+(8, 'Моденов', 'Павел', 'Алексеевич', '2006-11-30', 'Мужской', '+79324564890', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2022, 2026, NULL, '2023-06-15', 'Троечник', 'Мать: Моденова Анастасия', 'Да', 1),
+(9, 'Маслова', 'Анастасия', 'Сергеевна', '2006-10-01', 'Женский', '+79223028533', '9 кл.', 'ВТ', 'ИСВ-22-1', 'Бюджет', 2022, 2026, NULL, NULL, 'Отличник', 'Отец: Маслов Сергей', 'Нет', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -223,6 +339,17 @@ CREATE TABLE `SVOStatus` (
   `StatusEnd` date NOT NULL,
   `Notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `SVOStatus`
+--
+
+INSERT INTO `SVOStatus` (`SVOStatusID`, `StudentID`, `DocumentBasis`, `StatusStart`, `StatusEnd`, `Notes`) VALUES
+(1, 4, 'Приказ №1', '2018-09-01', '2023-06-30', 'СВО'),
+(2, 2, 'Приказ №2', '2019-09-01', '2023-06-30', 'СВО'),
+(3, 3, 'Приказ №3', '2017-09-01', '2023-06-30', 'СВО'),
+(4, 6, 'Приказ №4', '2020-09-01', '2024-06-30', 'СВО'),
+(5, 7, 'Приказ №5', '2019-09-01', '2023-06-30', 'СВО');
 
 --
 -- Индексы сохранённых таблиц
@@ -323,79 +450,79 @@ ALTER TABLE `SVOStatus`
 -- AUTO_INCREMENT для таблицы `Departments`
 --
 ALTER TABLE `Departments`
-  MODIFY `DepartmentID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `DepartmentID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT для таблицы `DisabledStudents`
 --
 ALTER TABLE `DisabledStudents`
-  MODIFY `DisabledStudentID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `DisabledStudentID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `Dormitories`
 --
 ALTER TABLE `Dormitories`
-  MODIFY `DormitoryID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `DormitoryID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT для таблицы `Errors`
 --
 ALTER TABLE `Errors`
-  MODIFY `ErrorID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `ErrorID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `Files`
 --
 ALTER TABLE `Files`
-  MODIFY `FileID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `FileID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `Orphans`
 --
 ALTER TABLE `Orphans`
-  MODIFY `OrphanID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `OrphanID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `RiskGroups`
 --
 ALTER TABLE `RiskGroups`
-  MODIFY `RiskGroupID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `RiskGroupID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `Rooms`
 --
 ALTER TABLE `Rooms`
-  MODIFY `RoomID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `RoomID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT для таблицы `SocialScholarships`
 --
 ALTER TABLE `SocialScholarships`
-  MODIFY `ScholarshipID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `ScholarshipID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT для таблицы `SpecialNeedsStudents`
 --
 ALTER TABLE `SpecialNeedsStudents`
-  MODIFY `SpecialNeedsStudentID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `SpecialNeedsStudentID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `SPPPMeetings`
 --
 ALTER TABLE `SPPPMeetings`
-  MODIFY `MeetingID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `MeetingID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT для таблицы `Students`
 --
 ALTER TABLE `Students`
-  MODIFY `StudentID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `StudentID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `SVOStatus`
 --
 ALTER TABLE `SVOStatus`
-  MODIFY `SVOStatusID` int NOT NULL AUTO_INCREMENT;
+  MODIFY `SVOStatusID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
