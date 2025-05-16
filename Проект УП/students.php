@@ -2,6 +2,75 @@
 session_start();
 include 'db_connection.php'; // Подключение к базе данных
 
+// Обработка добавления студента
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
+    $lastName = $_POST['lastName'];
+    $firstName = $_POST['firstName'];
+    $middleName = $_POST['middleName'];
+    $birthDate = $_POST['birthDate'];
+    $gender = $_POST['gender'];
+    $contactNumber = $_POST['contactNumber'];
+    $educationLevel = $_POST['educationLevel'];
+    $department = $_POST['department'];
+    $groupName = $_POST['groupName'];
+    $fundingType = $_POST['fundingType'];
+    $admissionYear = $_POST['admissionYear'];
+    $graduationYear = $_POST['graduationYear'];
+    $dismissalInfo = $_POST['dismissalInfo'];
+    $dismissalDate = $_POST['dismissalDate'];
+    $notes = $_POST['notes'];
+
+    $query = "INSERT INTO Students (LastName, FirstName, MiddleName, BirthDate, Gender, ContactNumber, EducationLevel, Department, GroupName, FundingType, AdmissionYear, GraduationYear, DismissalInfo, DismissalDate, Notes)
+              VALUES ('$lastName', '$firstName', '$middleName', '$birthDate', '$gender', '$contactNumber', '$educationLevel', '$department', '$groupName', '$fundingType', '$admissionYear', '$graduationYear', '$dismissalInfo', '$dismissalDate', '$notes')";
+    $conn->query($query);
+}
+
+// Обработка редактирования студента
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
+    $studentID = $_POST['studentID'];
+    $lastName = $_POST['lastName'];
+    $firstName = $_POST['firstName'];
+    $middleName = $_POST['middleName'];
+    $birthDate = $_POST['birthDate'];
+    $gender = $_POST['gender'];
+    $contactNumber = $_POST['contactNumber'];
+    $educationLevel = $_POST['educationLevel'];
+    $department = $_POST['department'];
+    $groupName = $_POST['groupName'];
+    $fundingType = $_POST['fundingType'];
+    $admissionYear = $_POST['admissionYear'];
+    $graduationYear = $_POST['graduationYear'];
+    $dismissalInfo = $_POST['dismissalInfo'];
+    $dismissalDate = $_POST['dismissalDate'];
+    $notes = $_POST['notes'];
+
+    $query = "UPDATE Students SET
+              LastName = '$lastName',
+              FirstName = '$firstName',
+              MiddleName = '$middleName',
+              BirthDate = '$birthDate',
+              Gender = '$gender',
+              ContactNumber = '$contactNumber',
+              EducationLevel = '$educationLevel',
+              Department = '$department',
+              GroupName = '$groupName',
+              FundingType = '$fundingType',
+              AdmissionYear = '$admissionYear',
+              GraduationYear = '$graduationYear',
+              DismissalInfo = '$dismissalInfo',
+              DismissalDate = '$dismissalDate',
+              Notes = '$notes'
+              WHERE StudentID = '$studentID'";
+    $conn->query($query);
+}
+
+// Обработка удаления студента
+if (isset($_GET['delete_id'])) {
+    $studentID = $_GET['delete_id'];
+    $query = "DELETE FROM Students WHERE StudentID = '$studentID'";
+    $conn->query($query);
+}
+
 // Инициализация переменных для фильтров
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $group = isset($_GET['group']) ? $_GET['group'] : '';
@@ -91,6 +160,9 @@ $result = $conn->query($query);
     <main>
         <section>
             <h2>Список студентов</h2>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <button onclick="showAddForm()" class="button button-blue">Добавить студента</button>
+            <?php endif; ?>
             <form method="get" action="students.php">
                 <label for="search">Поиск по имени или фамилии:</label>
                 <input type="text" id="search" name="search" placeholder="Введите имя или фамилию" value="<?php echo htmlspecialchars($search); ?>">
@@ -119,6 +191,115 @@ $result = $conn->query($query);
                 <button type="submit" class="button button-blue">Применить фильтры</button>
             </form>
 
+            <!-- Форма для добавления студента -->
+            <div id="addForm" style="display: none;">
+                <h3>Добавить студента</h3>
+                <form method="post" action="students.php">
+                    <input type="hidden" name="add_student" value="1">
+                    <label for="lastName">Фамилия:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+
+                    <label for="firstName">Имя:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+
+                    <label for="middleName">Отчество:</label>
+                    <input type="text" id="middleName" name="middleName" required>
+
+                    <label for="birthDate">Дата рождения:</label>
+                    <input type="date" id="birthDate" name="birthDate" required>
+
+                    <label for="gender">Пол:</label>
+                    <input type="text" id="gender" name="gender" required>
+
+                    <label for="contactNumber">Контактный номер:</label>
+                    <input type="text" id="contactNumber" name="contactNumber" required>
+
+                    <label for="educationLevel">Образование:</label>
+                    <input type="text" id="educationLevel" name="educationLevel" required>
+
+                    <label for="department">Отделение:</label>
+                    <input type="text" id="department" name="department" required>
+
+                    <label for="groupName">Группа:</label>
+                    <input type="text" id="groupName" name="groupName" required>
+
+                    <label for="fundingType">Финансирование:</label>
+                    <input type="text" id="fundingType" name="fundingType" required>
+
+                    <label for="admissionYear">Год поступления:</label>
+                    <input type="text" id="admissionYear" name="admissionYear" required>
+
+                    <label for="graduationYear">Год окончания:</label>
+                    <input type="text" id="graduationYear" name="graduationYear" required>
+
+                    <label for="dismissalInfo">Информация об отчислении:</label>
+                    <input type="text" id="dismissalInfo" name="dismissalInfo">
+
+                    <label for="dismissalDate">Дата отчисления:</label>
+                    <input type="date" id="dismissalDate" name="dismissalDate">
+
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes">
+
+                    <button type="submit" class="button button-blue">Добавить</button>
+                </form>
+            </div>
+
+            <!-- Форма для редактирования студента -->
+            <div id="editForm" style="display: none;">
+                <h3>Редактировать студента</h3>
+                <form method="post" action="students.php">
+                    <input type="hidden" name="edit_student" value="1">
+                    <input type="hidden" id="editStudentID" name="studentID">
+                    <label for="editLastName">Фамилия:</label>
+                    <input type="text" id="editLastName" name="lastName" required>
+
+                    <label for="editFirstName">Имя:</label>
+                    <input type="text" id="editFirstName" name="firstName" required>
+
+                    <label for="editMiddleName">Отчество:</label>
+                    <input type="text" id="editMiddleName" name="middleName" required>
+
+                    <label for="editBirthDate">Дата рождения:</label>
+                    <input type="date" id="editBirthDate" name="birthDate" required>
+
+                    <label for="editGender">Пол:</label>
+                    <input type="text" id="editGender" name="gender" required>
+
+                    <label for="editContactNumber">Контактный номер:</label>
+                    <input type="text" id="editContactNumber" name="contactNumber" required>
+
+                    <label for="editEducationLevel">Образование:</label>
+                    <input type="text" id="editEducationLevel" name="educationLevel" required>
+
+                    <label for="editDepartment">Отделение:</label>
+                    <input type="text" id="editDepartment" name="department" required>
+
+                    <label for="editGroupName">Группа:</label>
+                    <input type="text" id="editGroupName" name="groupName" required>
+
+                    <label for="editFundingType">Финансирование:</label>
+                    <input type="text" id="editFundingType" name="fundingType" required>
+
+                    <label for="editAdmissionYear">Год поступления:</label>
+                    <input type="text" id="editAdmissionYear" name="admissionYear" required>
+
+                    <label for="editGraduationYear">Год окончания:</label>
+                    <input type="text" id="editGraduationYear" name="graduationYear" required>
+
+                    <label for="editDismissalInfo">Информация об отчислении:</label>
+                    <input type="text" id="editDismissalInfo" name="dismissalInfo">
+
+                    <label for="editDismissalDate">Дата отчисления:</label>
+                    <input type="date" id="editDismissalDate" name="dismissalDate">
+
+                    <label for="editNotes">Примечание:</label>
+                    <input type="text" id="editNotes" name="notes">
+
+                    <button type="submit" class="button button-blue">Сохранить</button>
+                </form>
+            </div>
+
             <table>
                 <thead>
                     <tr>
@@ -137,6 +318,9 @@ $result = $conn->query($query);
                         <th>Информация об отчислении</th>
                         <th>Дата отчисления</th>
                         <th>Примечание</th>
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                            <th>Действия</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,11 +342,17 @@ $result = $conn->query($query);
                                 <td>{$row['GraduationYear']}</td>
                                 <td>{$row['DismissalInfo']}</td>
                                 <td>{$row['DismissalDate']}</td>
-                                <td>{$row['Notes']}</td>
-                            </tr>";
+                                <td>{$row['Notes']}</td>";
+                            if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+                                echo "<td>
+                                    <button onclick='showEditForm({$row['StudentID']}, \"{$row['LastName']}\", \"{$row['FirstName']}\", \"{$row['MiddleName']}\", \"{$row['BirthDate']}\", \"{$row['Gender']}\", \"{$row['ContactNumber']}\", \"{$row['EducationLevel']}\", \"{$row['Department']}\", \"{$row['GroupName']}\", \"{$row['FundingType']}\", \"{$row['AdmissionYear']}\", \"{$row['GraduationYear']}\", \"{$row['DismissalInfo']}\", \"{$row['DismissalDate']}\", \"{$row['Notes']}\")' class='button button-blue'>Редактировать</button>
+                                    <a href='students.php?delete_id={$row['StudentID']}' class='button button-red'>Удалить</a>
+                                </td>";
+                            }
+                            echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='14'>Нет данных о студентах</td></tr>";
+                        echo "<tr><td colspan='15'>Нет данных о студентах</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -172,5 +362,30 @@ $result = $conn->query($query);
     <footer>
         <p>&copy; Моисеев и Омельченко, 2025 Информационная система учебного заведения</p>
     </footer>
+    <script>
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+        }
+
+        function showEditForm(studentID, lastName, firstName, middleName, birthDate, gender, contactNumber, educationLevel, department, groupName, fundingType, admissionYear, graduationYear, dismissalInfo, dismissalDate, notes) {
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('editStudentID').value = studentID;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editMiddleName').value = middleName;
+            document.getElementById('editBirthDate').value = birthDate;
+            document.getElementById('editGender').value = gender;
+            document.getElementById('editContactNumber').value = contactNumber;
+            document.getElementById('editEducationLevel').value = educationLevel;
+            document.getElementById('editDepartment').value = department;
+            document.getElementById('editGroupName').value = groupName;
+            document.getElementById('editFundingType').value = fundingType;
+            document.getElementById('editAdmissionYear').value = admissionYear;
+            document.getElementById('editGraduationYear').value = graduationYear;
+            document.getElementById('editDismissalInfo').value = dismissalInfo;
+            document.getElementById('editDismissalDate').value = dismissalDate;
+            document.getElementById('editNotes').value = notes;
+        }
+    </script>
 </body>
 </html>
