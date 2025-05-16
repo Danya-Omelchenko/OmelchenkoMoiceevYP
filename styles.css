@@ -1,0 +1,308 @@
+@font-face {
+    font-family: "Jost";
+    src: url(img/Jost/Jost.ttf);
+}
+
+* {
+    font-family: "Jost", "Arial";
+    box-sizing: border-box;
+}
+
+/* Основные стили */
+body {
+    font-family: "Jost";
+    margin: 0;
+    padding: 0;
+    background-color: #FFFFFF;
+    color: #333;
+}
+
+header {
+    background-color: #FFFFFF;
+    color: #333;
+    padding: 1rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+header img {
+    margin-right: 1rem;
+    width: 100px;
+    height: 100px;
+}
+
+.login-button {
+    margin-right: 2rem;
+}
+
+nav {
+    background-color: #9EA1A2;
+    padding: 0.5rem;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 1rem;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 2rem;
+    width: 100%;
+    margin: 0 auto;
+}
+
+section {
+    background-color: white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sectionFlex {
+    background-color: white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.sectionFlex div {
+    width: 40%;
+}
+
+footer {
+    background-color: rgb(27, 27, 27);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    width: 100%;
+    bottom: 0;
+    padding-bottom: 200px;
+    border-radius: 25px 25px 0% 0%;
+}
+
+footer .logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    margin: 20px;
+}
+
+footer img {
+    margin-right: 1rem;
+    width: 50px;
+    height: 50px;
+}
+
+/* Стили для форм и таблиц */
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form label {
+    margin-top: 1rem;
+}
+
+form input, form textarea, form select {
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 0.5rem;
+    margin-top: 1rem;
+    background-color: #0060AC;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #005598;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: left;
+}
+
+th {
+    background-color: #0060AC;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Стили для кнопок в соответствии с UI-китом */
+.button {
+    padding: 0.5rem 2rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 0.2rem;
+}
+
+.select {
+    border-radius: 25px;
+}
+
+.input {
+    border-radius: 25px;
+}
+
+.button-red {
+    background-color: #E41613;
+    color: white;
+}
+.button-red1 {
+    background-color: #E41613;
+    margin-top: 30px;
+    color: white;
+}
+
+.button-red:hover {
+    background-color: #cc1411;
+}
+
+.button-blue {
+    background-color: #0060AC;
+    color: white;
+}
+
+.button-blue:hover {
+    background-color: #005598;
+}
+
+.button-gray {
+    background-color: #9EA1A2;
+    color: white;
+}
+
+.button-gray:hover {
+    background-color: #8a8f95;
+}
+
+/* Стили для поиска */
+.search-box {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Медиа-запросы для адаптации под мобильные устройства */
+@media (max-width: 1280px) {
+    
+
+    header img {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .login-button {
+        margin-right: 0;
+        margin-top: 1rem;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    nav ul li {
+        margin: 0.5rem 0;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    .sectionFlex {
+        flex-direction: column;
+    }
+
+    .sectionFlex div {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-title {
+        flex-direction: column;
+        text-align: center;
+    }
+    header img {
+        width: 80px;
+        height: 80px;
+    }
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    form input, form textarea, form select {
+        width: 100%;
+    }
+}
