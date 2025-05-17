@@ -344,9 +344,9 @@ $result = $conn->query($query);
                                 <td>{$row['DismissalDate']}</td>
                                 <td>{$row['Notes']}</td>";
                             if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                                echo "<td>
+                                 echo "<td>
                                     <button onclick='showEditForm({$row['StudentID']}, \"{$row['LastName']}\", \"{$row['FirstName']}\", \"{$row['MiddleName']}\", \"{$row['BirthDate']}\", \"{$row['Gender']}\", \"{$row['ContactNumber']}\", \"{$row['EducationLevel']}\", \"{$row['Department']}\", \"{$row['GroupName']}\", \"{$row['FundingType']}\", \"{$row['AdmissionYear']}\", \"{$row['GraduationYear']}\", \"{$row['DismissalInfo']}\", \"{$row['DismissalDate']}\", \"{$row['Notes']}\")' class='button button-blue'>Редактировать</button>
-                                    <a href='students.php?delete_id={$row['StudentID']}' class='button button-red'>Удалить</a>
+                                    <button class='button button-red'><a href='students.php?delete_id={$row['StudentID']}'>Удалить</a></button>
                                 </td>";
                             }
                             echo "</tr>";
