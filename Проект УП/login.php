@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
         <section>
-            <form action="login.php" method="post">
+            <form class="form1" action="login.php" method="post">
                 <label for="username">Имя пользователя:</label>
                 <input class="input" type="text" id="username" name="username" required>
 
