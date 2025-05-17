@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
     $fundingType = $_POST['fundingType'];
     $admissionYear = $_POST['admissionYear'];
     $graduationYear = $_POST['graduationYear'];
-    $dismissalInfo = $_POST['dismissalInfo'];
-    $dismissalDate = $_POST['dismissalDate'];
+    $dismissalInfo = !empty($_POST['dismissalInfo']) ? "'{$_POST['dismissalInfo']}'" : 'NULL';
+    $dismissalDate = !empty($_POST['dismissalDate']) ? "'{$_POST['dismissalDate']}'" : 'NULL';
     $notes = $_POST['notes'];
 
     $query = "INSERT INTO Students (LastName, FirstName, MiddleName, BirthDate, Gender, ContactNumber, EducationLevel, Department, GroupName, FundingType, AdmissionYear, GraduationYear, DismissalInfo, DismissalDate, Notes)
-              VALUES ('$lastName', '$firstName', '$middleName', '$birthDate', '$gender', '$contactNumber', '$educationLevel', '$department', '$groupName', '$fundingType', '$admissionYear', '$graduationYear', '$dismissalInfo', '$dismissalDate', '$notes')";
+              VALUES ('$lastName', '$firstName', '$middleName', '$birthDate', '$gender', '$contactNumber', '$educationLevel', '$department', '$groupName', '$fundingType', '$admissionYear', '$graduationYear', $dismissalInfo, $dismissalDate, '$notes')";
     $conn->query($query);
 }
 
@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
     $fundingType = $_POST['fundingType'];
     $admissionYear = $_POST['admissionYear'];
     $graduationYear = $_POST['graduationYear'];
-    $dismissalInfo = $_POST['dismissalInfo'];
-    $dismissalDate = $_POST['dismissalDate'];
+    $dismissalInfo = !empty($_POST['dismissalInfo']) ? "'{$_POST['dismissalInfo']}'" : 'NULL';
+    $dismissalDate = !empty($_POST['dismissalDate']) ? "'{$_POST['dismissalDate']}'" : 'NULL';
     $notes = $_POST['notes'];
 
     $query = "UPDATE Students SET
@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
               FundingType = '$fundingType',
               AdmissionYear = '$admissionYear',
               GraduationYear = '$graduationYear',
-              DismissalInfo = '$dismissalInfo',
-              DismissalDate = '$dismissalDate',
+              DismissalInfo = $dismissalInfo,
+              DismissalDate = $dismissalDate,
               Notes = '$notes'
               WHERE StudentID = '$studentID'";
     $conn->query($query);
