@@ -1,122 +1,59 @@
 <?php
 session_start();
 include 'db_connection.php'; // Подключение к базе данных
+include 'models/StudentManager.php'; // Подключение класса управления студентами
+
+$studentManager = new StudentManager($conn);
 
 // Обработка добавления студента
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
-    $lastName = $_POST['lastName'];
-    $firstName = $_POST['firstName'];
-    $middleName = $_POST['middleName'];
-    $birthDate = $_POST['birthDate'];
-    $gender = $_POST['gender'];
-    $contactNumber = $_POST['contactNumber'];
-    $educationLevel = $_POST['educationLevel'];
-    $department = $_POST['department'];
-    $groupName = $_POST['groupName'];
-    $fundingType = $_POST['fundingType'];
-    $admissionYear = $_POST['admissionYear'];
-    $graduationYear = $_POST['graduationYear'];
-    $dismissalInfo = !empty($_POST['dismissalInfo']) ? "'{$_POST['dismissalInfo']}'" : 'NULL';
-    $dismissalDate = !empty($_POST['dismissalDate']) ? "'{$_POST['dismissalDate']}'" : 'NULL';
-    $notes = $_POST['notes'];
-
-    $query = "INSERT INTO Students (LastName, FirstName, MiddleName, BirthDate, Gender, ContactNumber, EducationLevel, Department, GroupName, FundingType, AdmissionYear, GraduationYear, DismissalInfo, DismissalDate, Notes)
-              VALUES ('$lastName', '$firstName', '$middleName', '$birthDate', '$gender', '$contactNumber', '$educationLevel', '$department', '$groupName', '$fundingType', '$admissionYear', '$graduationYear', $dismissalInfo, $dismissalDate, '$notes')";
-    $conn->query($query);
+    try {
+        $student = new Student($_POST);
+        $result = $studentManager->addStudent($student);
+        if ($result) {
+            echo "Студент успешно добавлен";
+        } else {
+            echo "Ошибка при добавлении студента: " . $studentManager->getError();
+        }
+    } catch (Exception $e) {
+        echo "Ошибка: " . $e->getMessage();
+    }
+    exit();
 }
 
 // Обработка редактирования студента
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
-    $studentID = $_POST['studentID'];
-    $lastName = $_POST['lastName'];
-    $firstName = $_POST['firstName'];
-    $middleName = $_POST['middleName'];
-    $birthDate = $_POST['birthDate'];
-    $gender = $_POST['gender'];
-    $contactNumber = $_POST['contactNumber'];
-    $educationLevel = $_POST['educationLevel'];
-    $department = $_POST['department'];
-    $groupName = $_POST['groupName'];
-    $fundingType = $_POST['fundingType'];
-    $admissionYear = $_POST['admissionYear'];
-    $graduationYear = $_POST['graduationYear'];
-    $dismissalInfo = !empty($_POST['dismissalInfo']) ? "'{$_POST['dismissalInfo']}'" : 'NULL';
-    $dismissalDate = !empty($_POST['dismissalDate']) ? "'{$_POST['dismissalDate']}'" : 'NULL';
-    $notes = $_POST['notes'];
-
-    $query = "UPDATE Students SET
-              LastName = '$lastName',
-              FirstName = '$firstName',
-              MiddleName = '$middleName',
-              BirthDate = '$birthDate',
-              Gender = '$gender',
-              ContactNumber = '$contactNumber',
-              EducationLevel = '$educationLevel',
-              Department = '$department',
-              GroupName = '$groupName',
-              FundingType = '$fundingType',
-              AdmissionYear = '$admissionYear',
-              GraduationYear = '$graduationYear',
-              DismissalInfo = $dismissalInfo,
-              DismissalDate = $dismissalDate,
-              Notes = '$notes'
-              WHERE StudentID = '$studentID'";
-    $conn->query($query);
+    try {
+        $student = new Student($_POST);
+        $result = $studentManager->editStudent($student);
+        if ($result) {
+            echo "Студент успешно отредактирован";
+        } else {
+            echo "Ошибка при редактировании студента: " . $studentManager->getError();
+        }
+    } catch (Exception $e) {
+        echo "Ошибка: " . $e->getMessage();
+    }
+    exit();
 }
 
 // Обработка удаления студента
 if (isset($_GET['delete_id'])) {
-    $studentID = $_GET['delete_id'];
-    $query = "DELETE FROM Students WHERE StudentID = '$studentID'";
-    $conn->query($query);
+    try {
+        $result = $studentManager->deleteStudent($_GET['delete_id']);
+        if ($result) {
+            echo "Студент успешно удален";
+        } else {
+            echo "Ошибка при удалении студента: " . $studentManager->getError();
+        }
+    } catch (Exception $e) {
+        echo "Ошибка: " . $e->getMessage();
+    }
+    exit();
 }
 
-// Инициализация переменных для фильтров
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-$group = isset($_GET['group']) ? $_GET['group'] : '';
-$department = isset($_GET['department']) ? $_GET['department'] : '';
-$fundingType = isset($_GET['fundingType']) ? $_GET['fundingType'] : '';
-$admissionYear = isset($_GET['admissionYear']) ? $_GET['admissionYear'] : '';
-$graduationYear = isset($_GET['graduationYear']) ? $_GET['graduationYear'] : '';
-$educationLevel = isset($_GET['educationLevel']) ? $_GET['educationLevel'] : '';
-$gender = isset($_GET['gender']) ? $_GET['gender'] : '';
-
-// Создание SQL-запроса с учетом фильтров
-$query = "SELECT * FROM Students WHERE 1=1";
-
-if (!empty($search)) {
-    $query .= " AND (LastName LIKE '%$search%' OR FirstName LIKE '%$search%' OR MiddleName LIKE '%$search%')";
-}
-
-if (!empty($group)) {
-    $query .= " AND GroupName = '$group'";
-}
-
-if (!empty($department)) {
-    $query .= " AND Department = '$department'";
-}
-
-if (!empty($fundingType)) {
-    $query .= " AND FundingType = '$fundingType'";
-}
-
-if (!empty($admissionYear)) {
-    $query .= " AND AdmissionYear = '$admissionYear'";
-}
-
-if (!empty($graduationYear)) {
-    $query .= " AND GraduationYear = '$graduationYear'";
-}
-
-if (!empty($educationLevel)) {
-    $query .= " AND EducationLevel = '$educationLevel'";
-}
-
-if (!empty($gender)) {
-    $query .= " AND Gender = '$gender'";
-}
-
-$result = $conn->query($query);
+// Получение списка студентов
+$students = $studentManager->getStudents();
 ?>
 
 <!DOCTYPE html>
@@ -126,6 +63,7 @@ $result = $conn->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список студентов</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -163,30 +101,32 @@ $result = $conn->query($query);
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить студента</button>
             <?php endif; ?>
-            <form method="get" action="students.php">
+
+            <!-- Форма для фильтров -->
+            <form id="filterForm" method="get" action="students.php">
                 <label for="search">Поиск по имени или фамилии:</label>
-                <input type="text" id="search" name="search" placeholder="Введите имя или фамилию" value="<?php echo htmlspecialchars($search); ?>">
+                <input type="text" id="search" name="search" placeholder="Введите имя или фамилию">
 
                 <label for="group">Группа:</label>
-                <input type="text" id="group" name="group" placeholder="Введите группу" value="<?php echo htmlspecialchars($group); ?>">
+                <input type="text" id="group" name="group" placeholder="Введите группу">
 
                 <label for="department">Отделение:</label>
-                <input type="text" id="department" name="department" placeholder="Введите отделение" value="<?php echo htmlspecialchars($department); ?>">
+                <input type="text" id="department" name="department" placeholder="Введите отделение">
 
                 <label for="fundingType">Финансирование:</label>
-                <input type="text" id="fundingType" name="fundingType" placeholder="Введите тип финансирования" value="<?php echo htmlspecialchars($fundingType); ?>">
+                <input type="text" id="fundingType" name="fundingType" placeholder="Введите тип финансирования">
 
                 <label for="admissionYear">Год поступления:</label>
-                <input type="text" id="admissionYear" name="admissionYear" placeholder="Введите год поступления" value="<?php echo htmlspecialchars($admissionYear); ?>">
+                <input type="text" id="admissionYear" name="admissionYear" placeholder="Введите год поступления">
 
                 <label for="graduationYear">Год окончания:</label>
-                <input type="text" id="graduationYear" name="graduationYear" placeholder="Введите год окончания" value="<?php echo htmlspecialchars($graduationYear); ?>">
+                <input type="text" id="graduationYear" name="graduationYear" placeholder="Введите год окончания">
 
                 <label for="educationLevel">Образование:</label>
-                <input type="text" id="educationLevel" name="educationLevel" placeholder="Введите уровень образования" value="<?php echo htmlspecialchars($educationLevel); ?>">
+                <input type="text" id="educationLevel" name="educationLevel" placeholder="Введите уровень образования">
 
                 <label for="gender">Пол:</label>
-                <input type="text" id="gender" name="gender" placeholder="Введите пол" value="<?php echo htmlspecialchars($gender); ?>">
+                <input type="text" id="gender" name="gender" placeholder="Введите пол">
 
                 <button type="submit" class="button button-blue">Применить фильтры</button>
             </form>
@@ -194,7 +134,7 @@ $result = $conn->query($query);
             <!-- Форма для добавления студента -->
             <div id="addForm" style="display: none;">
                 <h3>Добавить студента</h3>
-                <form method="post" action="students.php">
+                <form id="addStudentForm" method="post">
                     <input type="hidden" name="add_student" value="1">
                     <label for="lastName">Фамилия:</label>
                     <input type="text" id="lastName" name="lastName" required>
@@ -241,14 +181,20 @@ $result = $conn->query($query);
                     <label for="notes">Примечание:</label>
                     <input type="text" id="notes" name="notes">
 
-                    <button type="submit" class="button button-blue">Добавить</button>
+                    <label for="parentsInfo">Информация о родителях:</label>
+                    <input type="text" id="parentsInfo" name="parentsInfo">
+
+                    <label for="penalties">Штрафы:</label>
+                    <input type="text" id="penalties" name="penalties">
+
+                    <button type="button" onclick="addStudent()" class="button button-blue">Добавить</button>
                 </form>
             </div>
 
             <!-- Форма для редактирования студента -->
             <div id="editForm" style="display: none;">
                 <h3>Редактировать студента</h3>
-                <form method="post" action="students.php">
+                <form id="editStudentForm" method="post">
                     <input type="hidden" name="edit_student" value="1">
                     <input type="hidden" id="editStudentID" name="studentID">
                     <label for="editLastName">Фамилия:</label>
@@ -296,11 +242,17 @@ $result = $conn->query($query);
                     <label for="editNotes">Примечание:</label>
                     <input type="text" id="editNotes" name="notes">
 
-                    <button type="submit" class="button button-blue">Сохранить</button>
+                    <label for="editParentsInfo">Информация о родителях:</label>
+                    <input type="text" id="editParentsInfo" name="parentsInfo">
+
+                    <label for="editPenalties">Штрафы:</label>
+                    <input type="text" id="editPenalties" name="penalties">
+
+                    <button type="button" onclick="editStudent()" class="button button-blue">Сохранить</button>
                 </form>
             </div>
 
-            <table>
+            <table id="studentsTable">
                 <thead>
                     <tr>
                         <th>Фамилия</th>
@@ -310,51 +262,49 @@ $result = $conn->query($query);
                         <th>Пол</th>
                         <th>Контактный номер</th>
                         <th>Образование</th>
-                        <th>Отделение</th>
+                        <th>Отд.</th>
                         <th>Группа</th>
-                        <th>Финансирование</th>
-                        <th>Год поступления</th>
-                        <th>Год окончания</th>
+                        <th>Финансиров.</th>
+                        <th>Год поступл</th>
+                        <th>Год оконч.</th>
                         <th>Информация об отчислении</th>
                         <th>Дата отчисления</th>
                         <th>Примечание</th>
+                        <th>Информация о родителях</th>
+                        <th>Штрафы</th>
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                <td>{$row['LastName']}</td>
-                                <td>{$row['FirstName']}</td>
-                                <td>{$row['MiddleName']}</td>
-                                <td>{$row['BirthDate']}</td>
-                                <td>{$row['Gender']}</td>
-                                <td>{$row['ContactNumber']}</td>
-                                <td>{$row['EducationLevel']}</td>
-                                <td>{$row['Department']}</td>
-                                <td>{$row['GroupName']}</td>
-                                <td>{$row['FundingType']}</td>
-                                <td>{$row['AdmissionYear']}</td>
-                                <td>{$row['GraduationYear']}</td>
-                                <td>{$row['DismissalInfo']}</td>
-                                <td>{$row['DismissalDate']}</td>
-                                <td>{$row['Notes']}</td>";
-                            if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                                 echo "<td>
-                                    <button onclick='showEditForm({$row['StudentID']}, \"{$row['LastName']}\", \"{$row['FirstName']}\", \"{$row['MiddleName']}\", \"{$row['BirthDate']}\", \"{$row['Gender']}\", \"{$row['ContactNumber']}\", \"{$row['EducationLevel']}\", \"{$row['Department']}\", \"{$row['GroupName']}\", \"{$row['FundingType']}\", \"{$row['AdmissionYear']}\", \"{$row['GraduationYear']}\", \"{$row['DismissalInfo']}\", \"{$row['DismissalDate']}\", \"{$row['Notes']}\")' class='button button-blue'>Редактировать</button>
-                                    <button class='button button-red'><a href='students.php?delete_id={$row['StudentID']}'>Удалить</a></button>
-                                </td>";
-                            }
-                            echo "</tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='15'>Нет данных о студентах</td></tr>";
-                    }
-                    ?>
+                    <?php foreach ($students as $student): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($student->lastName); ?></td>
+                            <td><?php echo htmlspecialchars($student->firstName); ?></td>
+                            <td><?php echo htmlspecialchars($student->middleName); ?></td>
+                            <td><?php echo htmlspecialchars($student->birthDate); ?></td>
+                            <td><?php echo htmlspecialchars($student->gender); ?></td>
+                            <td><?php echo htmlspecialchars($student->contactNumber); ?></td>
+                            <td><?php echo htmlspecialchars($student->educationLevel); ?></td>
+                            <td><?php echo htmlspecialchars($student->department); ?></td>
+                            <td><?php echo htmlspecialchars($student->groupName); ?></td>
+                            <td><?php echo htmlspecialchars($student->fundingType); ?></td>
+                            <td><?php echo htmlspecialchars($student->admissionYear); ?></td>
+                            <td><?php echo htmlspecialchars($student->graduationYear); ?></td>
+                            <td><?php echo htmlspecialchars($student->dismissalInfo); ?></td>
+                            <td><?php echo htmlspecialchars($student->dismissalDate); ?></td>
+                            <td><?php echo htmlspecialchars($student->notes); ?></td>
+                            <td><?php echo htmlspecialchars($student->parentsInfo); ?></td>
+                            <td><?php echo htmlspecialchars($student->penalties); ?></td>
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                <td>
+                                    <button onclick='showEditForm(<?php echo $student->studentID; ?>, "<?php echo htmlspecialchars($student->lastName); ?>", "<?php echo htmlspecialchars($student->firstName); ?>", "<?php echo htmlspecialchars($student->middleName); ?>", "<?php echo htmlspecialchars($student->birthDate); ?>", "<?php echo htmlspecialchars($student->gender); ?>", "<?php echo htmlspecialchars($student->contactNumber); ?>", "<?php echo htmlspecialchars($student->educationLevel); ?>", "<?php echo htmlspecialchars($student->department); ?>", "<?php echo htmlspecialchars($student->groupName); ?>", "<?php echo htmlspecialchars($student->fundingType); ?>", "<?php echo htmlspecialchars($student->admissionYear); ?>", "<?php echo htmlspecialchars($student->graduationYear); ?>", "<?php echo htmlspecialchars($student->dismissalInfo); ?>", "<?php echo htmlspecialchars($student->dismissalDate); ?>", "<?php echo htmlspecialchars($student->notes); ?>", "<?php echo htmlspecialchars($student->parentsInfo); ?>", "<?php echo htmlspecialchars($student->penalties); ?>")' class='button button-blue'>Редактировать</button>
+                                    <button onclick='deleteStudent(<?php echo $student->studentID; ?>)' class='button button-red'>Удалить</button>
+                                </td>
+                            <?php endif; ?>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </section>
@@ -367,7 +317,7 @@ $result = $conn->query($query);
             document.getElementById('addForm').style.display = 'block';
         }
 
-        function showEditForm(studentID, lastName, firstName, middleName, birthDate, gender, contactNumber, educationLevel, department, groupName, fundingType, admissionYear, graduationYear, dismissalInfo, dismissalDate, notes) {
+        function showEditForm(studentID, lastName, firstName, middleName, birthDate, gender, contactNumber, educationLevel, department, groupName, fundingType, admissionYear, graduationYear, dismissalInfo, dismissalDate, notes, parentsInfo, penalties) {
             document.getElementById('editForm').style.display = 'block';
             document.getElementById('editStudentID').value = studentID;
             document.getElementById('editLastName').value = lastName;
@@ -385,6 +335,59 @@ $result = $conn->query($query);
             document.getElementById('editDismissalInfo').value = dismissalInfo;
             document.getElementById('editDismissalDate').value = dismissalDate;
             document.getElementById('editNotes').value = notes;
+            document.getElementById('editParentsInfo').value = parentsInfo;
+            document.getElementById('editPenalties').value = penalties;
+        }
+
+        function addStudent() {
+            var formData = $('#addStudentForm').serialize();
+            $.ajax({
+                url: 'students.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    alert(response);
+                    $('#addForm').hide();
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function editStudent() {
+            var formData = $('#editStudentForm').serialize();
+            $.ajax({
+                url: 'students.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    alert(response);
+                    $('#editForm').hide();
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function deleteStudent(studentID) {
+            if (confirm('Вы уверены, что хотите удалить этого студента?')) {
+                $.ajax({
+                    url: 'students.php',
+                    type: 'GET',
+                    data: { delete_id: studentID },
+                    success: function(response) {
+                        alert(response);
+                        location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
         }
     </script>
 </body>
