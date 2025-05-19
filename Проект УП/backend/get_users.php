@@ -6,6 +6,6 @@
 
     $studentManager = new StudentManager($conn);
     $students = $studentManager->getStudents();
+
     echo json_encode($students);
-    
 ?>

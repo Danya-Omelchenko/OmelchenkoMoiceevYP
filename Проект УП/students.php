@@ -8,6 +8,11 @@ $studentManager = new StudentManager($conn);
 // Обработка добавления студента
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
     try {
+        // Отладочный вывод данных из формы
+        echo "<pre>";
+        print_r($_POST);
+        echo "</pre>";
+
         $student = new Student($_POST);
         $result = $studentManager->addStudent($student);
         if ($result) {
@@ -24,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
 // Обработка редактирования студента
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
     try {
+        // Отладочный вывод данных из формы
+        echo "<pre>";
+        print_r($_POST);
+        echo "</pre>";
+
         $student = new Student($_POST);
         $result = $studentManager->editStudent($student);
         if ($result) {
@@ -137,55 +147,55 @@ $students = $studentManager->getStudents();
                 <form id="addStudentForm" method="post">
                     <input type="hidden" name="add_student" value="1">
                     <label for="lastName">Фамилия:</label>
-                    <input type="text" id="lastName" name="lastName" required>
+                    <input type="text" id="lastName" name="LastName" required>
 
                     <label for="firstName">Имя:</label>
-                    <input type="text" id="firstName" name="firstName" required>
+                    <input type="text" id="firstName" name="FirstName" required>
 
                     <label for="middleName">Отчество:</label>
-                    <input type="text" id="middleName" name="middleName" required>
+                    <input type="text" id="middleName" name="MiddleName" required>
 
                     <label for="birthDate">Дата рождения:</label>
-                    <input type="date" id="birthDate" name="birthDate" required>
+                    <input type="date" id="birthDate" name="BirthDate" required>
 
                     <label for="gender">Пол:</label>
-                    <input type="text" id="gender" name="gender" required>
+                    <input type="text" id="gender" name="Gender" required>
 
                     <label for="contactNumber">Контактный номер:</label>
-                    <input type="text" id="contactNumber" name="contactNumber" required>
+                    <input type="text" id="contactNumber" name="ContactNumber" required>
 
                     <label for="educationLevel">Образование:</label>
-                    <input type="text" id="educationLevel" name="educationLevel" required>
+                    <input type="text" id="educationLevel" name="EducationLevel" required>
 
                     <label for="department">Отделение:</label>
-                    <input type="text" id="department" name="department" required>
+                    <input type="text" id="department" name="Department" required>
 
                     <label for="groupName">Группа:</label>
-                    <input type="text" id="groupName" name="groupName" required>
+                    <input type="text" id="groupName" name="GroupName" required>
 
                     <label for="fundingType">Финансирование:</label>
-                    <input type="text" id="fundingType" name="fundingType" required>
+                    <input type="text" id="fundingType" name="FundingType" required>
 
                     <label for="admissionYear">Год поступления:</label>
-                    <input type="text" id="admissionYear" name="admissionYear" required>
+                    <input type="text" id="admissionYear" name="AdmissionYear" required>
 
                     <label for="graduationYear">Год окончания:</label>
-                    <input type="text" id="graduationYear" name="graduationYear" required>
+                    <input type="text" id="graduationYear" name="GraduationYear">
 
                     <label for="dismissalInfo">Информация об отчислении:</label>
-                    <input type="text" id="dismissalInfo" name="dismissalInfo">
+                    <input type="text" id="dismissalInfo" name="DismissalInfo">
 
                     <label for="dismissalDate">Дата отчисления:</label>
-                    <input type="date" id="dismissalDate" name="dismissalDate">
+                    <input type="date" id="dismissalDate" name="DismissalDate">
 
                     <label for="notes">Примечание:</label>
-                    <input type="text" id="notes" name="notes">
+                    <input type="text" id="notes" name="Notes">
 
                     <label for="parentsInfo">Информация о родителях:</label>
-                    <input type="text" id="parentsInfo" name="parentsInfo">
+                    <input type="text" id="parentsInfo" name="ParentsInfo">
 
                     <label for="penalties">Штрафы:</label>
-                    <input type="text" id="penalties" name="penalties">
+                    <input type="text" id="penalties" name="Penalties">
 
                     <button type="button" onclick="addStudent()" class="button button-blue">Добавить</button>
                 </form>
@@ -196,57 +206,57 @@ $students = $studentManager->getStudents();
                 <h3>Редактировать студента</h3>
                 <form id="editStudentForm" method="post">
                     <input type="hidden" name="edit_student" value="1">
-                    <input type="hidden" id="editStudentID" name="studentID">
+                    <input type="hidden" id="editStudentID" name="StudentID">
                     <label for="editLastName">Фамилия:</label>
-                    <input type="text" id="editLastName" name="lastName" required>
+                    <input type="text" id="editLastName" name="LastName" required>
 
                     <label for="editFirstName">Имя:</label>
-                    <input type="text" id="editFirstName" name="firstName" required>
+                    <input type="text" id="editFirstName" name="FirstName" required>
 
                     <label for="editMiddleName">Отчество:</label>
-                    <input type="text" id="editMiddleName" name="middleName" required>
+                    <input type="text" id="editMiddleName" name="MiddleName" required>
 
                     <label for="editBirthDate">Дата рождения:</label>
-                    <input type="date" id="editBirthDate" name="birthDate" required>
+                    <input type="date" id="editBirthDate" name="BirthDate" required>
 
                     <label for="editGender">Пол:</label>
-                    <input type="text" id="editGender" name="gender" required>
+                    <input type="text" id="editGender" name="Gender" required>
 
                     <label for="editContactNumber">Контактный номер:</label>
-                    <input type="text" id="editContactNumber" name="contactNumber" required>
+                    <input type="text" id="editContactNumber" name="ContactNumber" required>
 
                     <label for="editEducationLevel">Образование:</label>
-                    <input type="text" id="editEducationLevel" name="educationLevel" required>
+                    <input type="text" id="editEducationLevel" name="EducationLevel" required>
 
                     <label for="editDepartment">Отделение:</label>
-                    <input type="text" id="editDepartment" name="department" required>
+                    <input type="text" id="editDepartment" name="Department" required>
 
                     <label for="editGroupName">Группа:</label>
-                    <input type="text" id="editGroupName" name="groupName" required>
+                    <input type="text" id="editGroupName" name="GroupName" required>
 
                     <label for="editFundingType">Финансирование:</label>
-                    <input type="text" id="editFundingType" name="fundingType" required>
+                    <input type="text" id="editFundingType" name="FundingType" required>
 
                     <label for="editAdmissionYear">Год поступления:</label>
-                    <input type="text" id="editAdmissionYear" name="admissionYear" required>
+                    <input type="text" id="editAdmissionYear" name="AdmissionYear" required>
 
                     <label for="editGraduationYear">Год окончания:</label>
-                    <input type="text" id="editGraduationYear" name="graduationYear" required>
+                    <input type="text" id="editGraduationYear" name="GraduationYear">
 
                     <label for="editDismissalInfo">Информация об отчислении:</label>
-                    <input type="text" id="editDismissalInfo" name="dismissalInfo">
+                    <input type="text" id="editDismissalInfo" name="DismissalInfo">
 
                     <label for="editDismissalDate">Дата отчисления:</label>
-                    <input type="date" id="editDismissalDate" name="dismissalDate">
+                    <input type="date" id="editDismissalDate" name="DismissalDate">
 
                     <label for="editNotes">Примечание:</label>
-                    <input type="text" id="editNotes" name="notes">
+                    <input type="text" id="editNotes" name="Notes">
 
                     <label for="editParentsInfo">Информация о родителях:</label>
-                    <input type="text" id="editParentsInfo" name="parentsInfo">
+                    <input type="text" id="editParentsInfo" name="ParentsInfo">
 
                     <label for="editPenalties">Штрафы:</label>
-                    <input type="text" id="editPenalties" name="penalties">
+                    <input type="text" id="editPenalties" name="Penalties">
 
                     <button type="button" onclick="editStudent()" class="button button-blue">Сохранить</button>
                 </form>
@@ -264,8 +274,8 @@ $students = $studentManager->getStudents();
                         <th>Образование</th>
                         <th>Отд.</th>
                         <th>Группа</th>
-                        <th>Финансиров.</th>
-                        <th>Год поступл</th>
+                        <th>Финанс.</th>
+                        <th>Год поступ.</th>
                         <th>Год оконч.</th>
                         <th>Информация об отчислении</th>
                         <th>Дата отчисления</th>
@@ -346,8 +356,6 @@ $students = $studentManager->getStudents();
                 type: 'POST',
                 data: formData,
                 success: function(response) {
-                    alert(response);
-                    $('#addForm').hide();
                     location.reload();
                 },
                 error: function(xhr, status, error) {
@@ -363,8 +371,6 @@ $students = $studentManager->getStudents();
                 type: 'POST',
                 data: formData,
                 success: function(response) {
-                    alert(response);
-                    $('#editForm').hide();
                     location.reload();
                 },
                 error: function(xhr, status, error) {
