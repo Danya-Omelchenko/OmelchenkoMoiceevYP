@@ -1,63 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php';
-include 'models/Sppp_meetingsManager.php';
-
-$spppManager = new SPPPManager($conn);
-
-// Обработка добавления заседания
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_meeting'])) {
-    try {
-        $meeting = new SPPPMeeting($_POST);
-        $result = $spppManager->addMeeting($meeting);
-        echo json_encode(['success' => $result]);
-        exit();
-    } catch (Exception $e) {
-        echo json_encode(['error' => $e->getMessage()]);
-        exit();
-    }
-}
-
-// Обработка редактирования заседания
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_meeting'])) {
-    try {
-        $meeting = new SPPPMeeting($_POST);
-        $result = $spppManager->editMeeting($meeting);
-        echo json_encode(['success' => $result]);
-        exit();
-    } catch (Exception $e) {
-        echo json_encode(['error' => $e->getMessage()]);
-        exit();
-    }
-}
-
-// Обработка удаления заседания
-if (isset($_GET['delete_id'])) {
-    try {
-        $result = $spppManager->deleteMeeting($_GET['delete_id']);
-        echo json_encode(['success' => $result]);
-        exit();
-    } catch (Exception $e) {
-        echo json_encode(['error' => $e->getMessage()]);
-        exit();
-    }
-}
-
-// Получение списка заседаний с фильтрами
-$filters = [
-    'studentID' => $_GET['studentID'] ?? '',
-    'meetingDate' => $_GET['meetingDate'] ?? '',
-    'callReason' => $_GET['callReason'] ?? '',
-    'presentEmployees' => $_GET['presentEmployees'] ?? '',
-    'presentRepresentatives' => $_GET['presentRepresentatives'] ?? '',
-    'callCause' => $_GET['callCause'] ?? '',
-    'decision' => $_GET['decision'] ?? '',
-    'notes' => $_GET['notes'] ?? ''
-];
-
-$meetings = $spppManager->getMeetings($filters);
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -100,38 +43,38 @@ $meetings = $spppManager->getMeetings($filters);
     <main>
         <section>
             <h2>Заседания СППП</h2>
-            
+
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить заседание</button>
             <?php endif; ?>
 
             <!-- Форма фильтрации -->
-            <form id="filterForm" method="get" action="sppp_meetings.php">
+            <form id="filterForm">
                 <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента" value="<?= htmlspecialchars($filters['studentID']) ?>">
+                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
 
                 <label for="meetingDate">Дата заседания:</label>
-                <input type="date" id="meetingDate" name="meetingDate" value="<?= htmlspecialchars($filters['meetingDate']) ?>">
+                <input type="date" id="meetingDate" name="meetingDate">
 
                 <label for="callReason">Основание вызова:</label>
-                <input type="text" id="callReason" name="callReason" placeholder="Введите основание" value="<?= htmlspecialchars($filters['callReason']) ?>">
+                <input type="text" id="callReason" name="callReason" placeholder="Введите основание">
 
                 <label for="presentEmployees">Присутствовали сотрудники:</label>
-                <input type="text" id="presentEmployees" name="presentEmployees" placeholder="Введите сотрудников" value="<?= htmlspecialchars($filters['presentEmployees']) ?>">
+                <input type="text" id="presentEmployees" name="presentEmployees" placeholder="Введите сотрудников">
 
                 <label for="presentRepresentatives">Присутствовали представители:</label>
-                <input type="text" id="presentRepresentatives" name="presentRepresentatives" placeholder="Введите представителей" value="<?= htmlspecialchars($filters['presentRepresentatives']) ?>">
+                <input type="text" id="presentRepresentatives" name="presentRepresentatives" placeholder="Введите представителей">
 
                 <label for="callCause">Причина вызова:</label>
-                <input type="text" id="callCause" name="callCause" placeholder="Введите причину" value="<?= htmlspecialchars($filters['callCause']) ?>">
+                <input type="text" id="callCause" name="callCause" placeholder="Введите причину">
 
                 <label for="decision">Решение:</label>
-                <input type="text" id="decision" name="decision" placeholder="Введите решение" value="<?= htmlspecialchars($filters['decision']) ?>">
+                <input type="text" id="decision" name="decision" placeholder="Введите решение">
 
                 <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание" value="<?= htmlspecialchars($filters['notes']) ?>">
+                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
 
-                <button type="submit" class="button button-blue">Применить фильтры</button>
+                <button type="button" onclick="loadMeetings()" class="button button-blue">Применить фильтры</button>
             </form>
 
             <!-- Форма добавления -->
@@ -139,7 +82,7 @@ $meetings = $spppManager->getMeetings($filters);
                 <h3>Добавить заседание СППП</h3>
                 <form id="addMeetingForm">
                     <input type="hidden" name="add_meeting" value="1">
-                    
+
                     <label for="addStudentID">ID студента:</label>
                     <input type="number" id="addStudentID" name="StudentID" required>
 
@@ -174,7 +117,7 @@ $meetings = $spppManager->getMeetings($filters);
                 <form id="editMeetingForm">
                     <input type="hidden" name="edit_meeting" value="1">
                     <input type="hidden" id="editMeetingID" name="MeetingID">
-                    
+
                     <label for="editStudentID">ID студента:</label>
                     <input type="number" id="editStudentID" name="StudentID" required>
 
@@ -222,38 +165,7 @@ $meetings = $spppManager->getMeetings($filters);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($meetings as $meeting): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($meeting['MeetingID']) ?></td>
-                            <td>
-                                <?= htmlspecialchars($meeting['LastName'] . ' ' . $meeting['FirstName'] . ' ' . $meeting['MiddleName']) ?>
-                                (ID: <?= htmlspecialchars($meeting['StudentID']) ?>)
-                            </td>
-                            <td><?= htmlspecialchars($meeting['MeetingDate']) ?></td>
-                            <td><?= htmlspecialchars($meeting['CallReason']) ?></td>
-                            <td><?= htmlspecialchars($meeting['PresentEmployees']) ?></td>
-                            <td><?= htmlspecialchars($meeting['PresentRepresentatives']) ?></td>
-                            <td><?= htmlspecialchars($meeting['CallCause']) ?></td>
-                            <td><?= htmlspecialchars($meeting['Decision']) ?></td>
-                            <td><?= htmlspecialchars($meeting['Notes']) ?></td>
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                <td>
-                                    <button onclick="showEditForm(
-                                        <?= $meeting['MeetingID'] ?>,
-                                        <?= $meeting['StudentID'] ?>,
-                                        '<?= htmlspecialchars($meeting['MeetingDate']) ?>',
-                                        '<?= htmlspecialchars($meeting['CallReason']) ?>',
-                                        '<?= htmlspecialchars($meeting['PresentEmployees']) ?>',
-                                        '<?= htmlspecialchars($meeting['PresentRepresentatives']) ?>',
-                                        '<?= htmlspecialchars($meeting['CallCause']) ?>',
-                                        '<?= htmlspecialchars($meeting['Decision']) ?>',
-                                        '<?= htmlspecialchars($meeting['Notes']) ?>'
-                                    )" class="button button-blue">Редактировать</button>
-                                    <button onclick="deleteMeeting(<?= $meeting['MeetingID'] ?>)" class="button button-red">Удалить</button>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
+                    <!-- Данные будут загружаться через AJAX -->
                 </tbody>
             </table>
         </section>
@@ -271,7 +183,7 @@ $meetings = $spppManager->getMeetings($filters);
         function showEditForm(meetingID, studentID, meetingDate, callReason, presentEmployees, presentRepresentatives, callCause, decision, notes) {
             document.getElementById('editForm').style.display = 'block';
             document.getElementById('addForm').style.display = 'none';
-            
+
             document.getElementById('editMeetingID').value = meetingID;
             document.getElementById('editStudentID').value = studentID;
             document.getElementById('editMeetingDate').value = meetingDate;
@@ -285,15 +197,17 @@ $meetings = $spppManager->getMeetings($filters);
 
         function addMeeting() {
             const formData = $('#addMeetingForm').serialize();
-            
+
             $.ajax({
-                url: 'sppp_meetings.php',
+                url: 'Controllers/sppp_meetings_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
-                        location.reload();
+                        loadMeetings();
+                        document.getElementById('addForm').style.display = 'none';
+                        $('#addMeetingForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении заседания');
                     }
@@ -306,15 +220,16 @@ $meetings = $spppManager->getMeetings($filters);
 
         function updateMeeting() {
             const formData = $('#editMeetingForm').serialize();
-            
+
             $.ajax({
-                url: 'sppp_meetings.php',
+                url: 'Controllers/sppp_meetings_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
-                        location.reload();
+                        loadMeetings();
+                        document.getElementById('editForm').style.display = 'none';
                     } else {
                         alert(result.error || 'Ошибка при обновлении заседания');
                     }
@@ -328,13 +243,13 @@ $meetings = $spppManager->getMeetings($filters);
         function deleteMeeting(meetingID) {
             if (confirm('Вы уверены, что хотите удалить это заседание СППП?')) {
                 $.ajax({
-                    url: 'sppp_meetings.php',
+                    url: 'Controllers/sppp_meetings_controller.php',
                     type: 'GET',
                     data: { delete_id: meetingID },
                     success: function(response) {
                         const result = JSON.parse(response);
                         if (result.success) {
-                            location.reload();
+                            loadMeetings();
                         } else {
                             alert(result.error || 'Ошибка при удалении заседания');
                         }
@@ -345,6 +260,66 @@ $meetings = $spppManager->getMeetings($filters);
                 });
             }
         }
+
+        function loadMeetings() {
+            $.ajax({
+                url: 'Controllers/sppp_meetings_controller.php',
+                type: 'GET',
+                data: $('#filterForm').serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        let tableBody = '';
+                        response.data.forEach(function(meeting) {
+                            tableBody += `
+                                <tr>
+                                    <td>${meeting.MeetingID || ''}</td>
+                                    <td>${meeting.LastName || ''} ${meeting.FirstName || ''} ${meeting.MiddleName || ''} (ID: ${meeting.StudentID || ''})</td>
+                                    <td>${meeting.MeetingDate || ''}</td>
+                                    <td>${meeting.CallReason || ''}</td>
+                                    <td>${meeting.PresentEmployees || ''}</td>
+                                    <td>${meeting.PresentRepresentatives || ''}</td>
+                                    <td>${meeting.CallCause || ''}</td>
+                                    <td>${meeting.Decision || ''}</td>
+                                    <td>${meeting.Notes || ''}</td>
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <td>
+                                        <button onclick="showEditForm(
+                                            ${meeting.MeetingID},
+                                            ${meeting.StudentID},
+                                            '${meeting.MeetingDate}',
+                                            '${escapeSingleQuote(meeting.CallReason)}',
+                                            '${escapeSingleQuote(meeting.PresentEmployees)}',
+                                            '${escapeSingleQuote(meeting.PresentRepresentatives)}',
+                                            '${escapeSingleQuote(meeting.CallCause)}',
+                                            '${escapeSingleQuote(meeting.Decision)}',
+                                            '${escapeSingleQuote(meeting.Notes)}'
+                                        )" class="button button-blue">Редактировать</button>
+                                        
+                                    </td>
+                                    <?php endif; ?>
+                                </tr>
+                            `;
+                        });
+                        $('#meetingsTable tbody').html(tableBody);
+                    } else {
+                        alert(response.error || 'Ошибка при загрузке данных');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при загрузке данных: ' + error);
+                }
+            });
+        }
+
+        function escapeSingleQuote(str) {
+            return (str || '').replace(/'/g, "\\'");
+        }
+
+        $(document).ready(function() {
+            loadMeetings();
+        });
     </script>
 </body>
 </html>
