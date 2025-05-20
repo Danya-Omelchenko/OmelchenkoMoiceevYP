@@ -148,7 +148,7 @@ class StudentManager {
         $types .= 'ss';
     }
 
-    // Добавьте другие фильтры аналогично...
+    // Добавить другие фильтры аналогично
 
     $stmt = $this->conn->prepare($query);
     
