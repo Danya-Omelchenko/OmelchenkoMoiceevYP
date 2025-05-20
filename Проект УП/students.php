@@ -1,71 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php'; // Подключение к базе данных
-include 'models/StudentManager.php'; // Подключение класса управления студентами
-
-$studentManager = new StudentManager($conn);
-
-// Обработка добавления студента
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
-    try {
-        // Отладочный вывод данных из формы
-        echo "<pre>";
-        print_r($_POST);
-        echo "</pre>";
-
-        $student = new Student($_POST);
-        $result = $studentManager->addStudent($student);
-        if ($result) {
-            echo "Студент успешно добавлен";
-        } else {
-            echo "Ошибка при добавлении студента: " . $studentManager->getError();
-        }
-    } catch (Exception $e) {
-        echo "Ошибка: " . $e->getMessage();
-    }
-    exit();
-}
-
-// Обработка редактирования студента
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_student'])) {
-    try {
-        // Отладочный вывод данных из формы
-        echo "<pre>";
-        print_r($_POST);
-        echo "</pre>";
-
-        $student = new Student($_POST);
-        $result = $studentManager->editStudent($student);
-        if ($result) {
-            echo "Студент успешно отредактирован";
-        } else {
-            echo "Ошибка при редактировании студента: " . $studentManager->getError();
-        }
-    } catch (Exception $e) {
-        echo "Ошибка: " . $e->getMessage();
-    }
-    exit();
-}
-
-// Обработка удаления студента
-if (isset($_GET['delete_id'])) {
-    try {
-        $result = $studentManager->deleteStudent($_GET['delete_id']);
-        if ($result) {
-            echo "Студент успешно удален";
-        } else {
-            echo "Ошибка при удалении студента: " . $studentManager->getError();
-        }
-    } catch (Exception $e) {
-        echo "Ошибка: " . $e->getMessage();
-    }
-    exit();
-}
-
-// Получение списка студентов
-$students = $studentManager->getStudents();
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -94,7 +29,7 @@ $students = $studentManager->getStudents();
     <nav>
         <ul>
             <li><a href="index.php">Главная</a></li>
-            <li><a href="students.php">Студенты</a></li>
+            <li><a href="students.php" class="active">Студенты</a></li>
             <li><a href="orphans.php">Сироты</a></li>
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php">ОВЗ</a></li>
@@ -144,7 +79,7 @@ $students = $studentManager->getStudents();
             <!-- Форма для добавления студента -->
             <div id="addForm" style="display: none;">
                 <h3>Добавить студента</h3>
-                <form id="addStudentForm" method="post">
+                <form id="addStudentForm">
                     <input type="hidden" name="add_student" value="1">
                     <label for="lastName">Фамилия:</label>
                     <input type="text" id="lastName" name="LastName" required>
@@ -204,7 +139,7 @@ $students = $studentManager->getStudents();
             <!-- Форма для редактирования студента -->
             <div id="editForm" style="display: none;">
                 <h3>Редактировать студента</h3>
-                <form id="editStudentForm" method="post">
+                <form id="editStudentForm">
                     <input type="hidden" name="edit_student" value="1">
                     <input type="hidden" id="editStudentID" name="StudentID">
                     <label for="editLastName">Фамилия:</label>
@@ -288,33 +223,7 @@ $students = $studentManager->getStudents();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($students as $student): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($student->lastName); ?></td>
-                            <td><?php echo htmlspecialchars($student->firstName); ?></td>
-                            <td><?php echo htmlspecialchars($student->middleName); ?></td>
-                            <td><?php echo htmlspecialchars($student->birthDate); ?></td>
-                            <td><?php echo htmlspecialchars($student->gender); ?></td>
-                            <td><?php echo htmlspecialchars($student->contactNumber); ?></td>
-                            <td><?php echo htmlspecialchars($student->educationLevel); ?></td>
-                            <td><?php echo htmlspecialchars($student->department); ?></td>
-                            <td><?php echo htmlspecialchars($student->groupName); ?></td>
-                            <td><?php echo htmlspecialchars($student->fundingType); ?></td>
-                            <td><?php echo htmlspecialchars($student->admissionYear); ?></td>
-                            <td><?php echo htmlspecialchars($student->graduationYear); ?></td>
-                            <td><?php echo htmlspecialchars($student->dismissalInfo); ?></td>
-                            <td><?php echo htmlspecialchars($student->dismissalDate); ?></td>
-                            <td><?php echo htmlspecialchars($student->notes); ?></td>
-                            <td><?php echo htmlspecialchars($student->parentsInfo); ?></td>
-                            <td><?php echo htmlspecialchars($student->penalties); ?></td>
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                <td>
-                                    <button onclick='showEditForm(<?php echo $student->studentID; ?>, "<?php echo htmlspecialchars($student->lastName); ?>", "<?php echo htmlspecialchars($student->firstName); ?>", "<?php echo htmlspecialchars($student->middleName); ?>", "<?php echo htmlspecialchars($student->birthDate); ?>", "<?php echo htmlspecialchars($student->gender); ?>", "<?php echo htmlspecialchars($student->contactNumber); ?>", "<?php echo htmlspecialchars($student->educationLevel); ?>", "<?php echo htmlspecialchars($student->department); ?>", "<?php echo htmlspecialchars($student->groupName); ?>", "<?php echo htmlspecialchars($student->fundingType); ?>", "<?php echo htmlspecialchars($student->admissionYear); ?>", "<?php echo htmlspecialchars($student->graduationYear); ?>", "<?php echo htmlspecialchars($student->dismissalInfo); ?>", "<?php echo htmlspecialchars($student->dismissalDate); ?>", "<?php echo htmlspecialchars($student->notes); ?>", "<?php echo htmlspecialchars($student->parentsInfo); ?>", "<?php echo htmlspecialchars($student->penalties); ?>")' class='button button-blue'>Редактировать</button>
-                                    <button onclick='deleteStudent(<?php echo $student->studentID; ?>)' class='button button-red'>Удалить</button>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
+                    <!-- Данные будут загружены через AJAX -->
                 </tbody>
             </table>
         </section>
@@ -322,13 +231,17 @@ $students = $studentManager->getStudents();
     <footer>
         <p>&copy; Моисеев и Омельченко, 2025 Информационная система учебного заведения</p>
     </footer>
+
     <script>
         function showAddForm() {
             document.getElementById('addForm').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
         }
 
         function showEditForm(studentID, lastName, firstName, middleName, birthDate, gender, contactNumber, educationLevel, department, groupName, fundingType, admissionYear, graduationYear, dismissalInfo, dismissalDate, notes, parentsInfo, penalties) {
             document.getElementById('editForm').style.display = 'block';
+            document.getElementById('addForm').style.display = 'none';
+
             document.getElementById('editStudentID').value = studentID;
             document.getElementById('editLastName').value = lastName;
             document.getElementById('editFirstName').value = firstName;
@@ -350,31 +263,43 @@ $students = $studentManager->getStudents();
         }
 
         function addStudent() {
-            var formData = $('#addStudentForm').serialize();
+            const formData = $('#addStudentForm').serialize();
+
             $.ajax({
-                url: 'students.php',
+                url: 'Controllers/students_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
-                    location.reload();
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.error || 'Ошибка при добавлении студента');
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error:', error);
+                    alert('Ошибка: ' + error);
                 }
             });
         }
 
         function editStudent() {
-            var formData = $('#editStudentForm').serialize();
+            const formData = $('#editStudentForm').serialize();
+
             $.ajax({
-                url: 'students.php',
+                url: 'Controllers/students_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
-                    location.reload();
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.error || 'Ошибка при обновлении студента');
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error:', error);
+                    alert('Ошибка: ' + error);
                 }
             });
         }
@@ -382,19 +307,109 @@ $students = $studentManager->getStudents();
         function deleteStudent(studentID) {
             if (confirm('Вы уверены, что хотите удалить этого студента?')) {
                 $.ajax({
-                    url: 'students.php',
+                    url: 'Controllers/students_controller.php',
                     type: 'GET',
                     data: { delete_id: studentID },
                     success: function(response) {
-                        alert(response);
-                        location.reload();
+                        const result = JSON.parse(response);
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert(result.error || 'Ошибка при удалении студента');
+                        }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Error:', error);
+                        alert('Ошибка: ' + error);
                     }
                 });
             }
         }
+
+       $(document).ready(function() {
+        // Функция загрузки данных
+        function loadStudents() {
+            $.ajax({
+                url: 'Controllers/students_controller.php',
+                type: 'GET',
+                data: $('#filterForm').serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        let tableBody = '';
+                        response.data.forEach(function(student) {
+                            tableBody += `
+                                <tr>
+                                    <td>${student.LastName || ''}</td>
+                                    <td>${student.FirstName || ''}</td>
+                                    <td>${student.MiddleName || ''}</td>
+                                    <td>${student.BirthDate || ''}</td>
+                                    <td>${student.Gender || ''}</td>
+                                    <td>${student.ContactNumber || ''}</td>
+                                    <td>${student.EducationLevel || ''}</td>
+                                    <td>${student.Department || ''}</td>
+                                    <td>${student.GroupName || ''}</td>
+                                    <td>${student.FundingType || ''}</td>
+                                    <td>${student.AdmissionYear || ''}</td>
+                                    <td>${student.GraduationYear || ''}</td>
+                                    <td>${student.DismissalInfo || ''}</td>
+                                    <td>${student.DismissalDate || ''}</td>
+                                    <td>${student.Notes || ''}</td>
+                                    <td>${student.ParentsInfo || ''}</td>
+                                    <td>${student.Penalties || ''}</td>
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <td>
+                                        <button onclick="showEditForm(
+                                            ${student.StudentID},
+                                            '${escapeSingleQuote(student.LastName)}',
+                                            '${escapeSingleQuote(student.FirstName)}',
+                                            '${escapeSingleQuote(student.MiddleName)}',
+                                            '${student.BirthDate}',
+                                            '${escapeSingleQuote(student.Gender)}',
+                                            '${escapeSingleQuote(student.ContactNumber)}',
+                                            '${escapeSingleQuote(student.EducationLevel)}',
+                                            '${escapeSingleQuote(student.Department)}',
+                                            '${escapeSingleQuote(student.GroupName)}',
+                                            '${escapeSingleQuote(student.FundingType)}',
+                                            '${student.AdmissionYear}',
+                                            '${student.GraduationYear}',
+                                            '${escapeSingleQuote(student.DismissalInfo)}',
+                                            '${student.DismissalDate}',
+                                            '${escapeSingleQuote(student.Notes)}',
+                                            '${escapeSingleQuote(student.ParentsInfo)}',
+                                            '${escapeSingleQuote(student.Penalties)}'
+                                        )" class="button button-blue">Редактировать</button>
+                                        <button onclick="deleteStudent(${student.StudentID})" class="button button-red">Удалить</button>
+                                    </td>
+                                    <?php endif; ?>
+                                </tr>
+                            `;
+                        });
+                        $('#studentsTable tbody').html(tableBody);
+                    } else {
+                        alert(response.error || 'Ошибка при загрузке данных');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при загрузке данных: ' + error);
+                }
+            });
+        }
+
+        // Функция для экранирования кавычек
+        function escapeSingleQuote(str) {
+            return (str || '').replace(/'/g, "\\'");
+        }
+
+        // Загрузка данных при старте страницы
+        loadStudents();
+
+        // Обработка отправки формы фильтрации
+        $('#filterForm').on('submit', function(e) {
+            e.preventDefault();
+            loadStudents();
+        });
+    });
     </script>
 </body>
 </html>

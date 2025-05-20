@@ -49,56 +49,47 @@ class StudentManager {
     }
 
     public function addStudent(Student $student) {
-        // Проверка обязательных полей
         $requiredFields = [
-            'lastName', 'firstName', 'birthDate', 
-            'gender', 'contactNumber', 'educationLevel', 
+            'lastName', 'firstName', 'birthDate',
+            'gender', 'contactNumber', 'educationLevel',
             'department', 'groupName', 'fundingType', 'admissionYear'
         ];
-        
+
         foreach ($requiredFields as $field) {
             if (!isset($student->$field) || $student->$field === '') {
                 throw new Exception("Обязательное поле '$field' не заполнено");
             }
         }
-    
-        // Остальной код метода остается без изменений
+
         $birthDate = !empty($student->birthDate) ? "'{$student->birthDate}'" : 'NULL';
         $dismissalDate = !empty($student->dismissalDate) ? "'{$student->dismissalDate}'" : 'NULL';
         $dismissalInfo = !empty($student->dismissalInfo) ? "'{$student->dismissalInfo}'" : 'NULL';
         $penalties = !empty($student->penalties) ? "'{$student->penalties}'" : 'NULL';
-    
+
         $query = "INSERT INTO Students (LastName, FirstName, MiddleName, BirthDate, Gender, ContactNumber, EducationLevel, Department, GroupName, FundingType, AdmissionYear, GraduationYear, DismissalInfo, DismissalDate, Notes, ParentsInfo, Penalties)
                   VALUES ('{$student->lastName}', '{$student->firstName}', '{$student->middleName}', $birthDate, '{$student->gender}', '{$student->contactNumber}', '{$student->educationLevel}', '{$student->department}', '{$student->groupName}', '{$student->fundingType}', '{$student->admissionYear}', '{$student->graduationYear}', $dismissalInfo, $dismissalDate, '{$student->notes}', '{$student->parentsInfo}', $penalties)";
-    
-        // Отладочный вывод
-        echo "SQL Query: " . $query . "<br>";
-    
-        $result = $this->conn->query($query);
-    
-        if ($result) {
-            echo "Query executed successfully";
-        } else {
-            echo "Query failed: " . $this->conn->error;
-        }
-    
-        return $result;
+
+        return $this->conn->query($query);
     }
 
     public function editStudent(Student $student) {
-        // Проверка обязательных полей
         $requiredFields = [
-            'lastName', 'firstName', 'birthDate', 
-            'gender', 'contactNumber', 'educationLevel', 
+            'lastName', 'firstName', 'birthDate',
+            'gender', 'contactNumber', 'educationLevel',
             'department', 'groupName', 'fundingType', 'admissionYear'
         ];
-        
+
+        foreach ($requiredFields as $field) {
+            if (!isset($student->$field) || $student->$field === '') {
+                throw new Exception("Обязательное поле '$field' не заполнено");
+            }
+        }
 
         $birthDate = !empty($student->birthDate) ? "'{$student->birthDate}'" : 'NULL';
         $dismissalDate = !empty($student->dismissalDate) ? "'{$student->dismissalDate}'" : 'NULL';
         $dismissalInfo = !empty($student->dismissalInfo) ? "'{$student->dismissalInfo}'" : 'NULL';
         $penalties = !empty($student->penalties) ? "'{$student->penalties}'" : 'NULL';
-    
+
         $query = "UPDATE Students SET
                   LastName = '{$student->lastName}',
                   FirstName = '{$student->firstName}',
@@ -118,19 +109,8 @@ class StudentManager {
                   ParentsInfo = '{$student->parentsInfo}',
                   Penalties = $penalties
                   WHERE StudentID = '{$student->studentID}'";
-    
-        // Отладочный вывод
-        echo "SQL Query: " . $query . "<br>";
-    
-        $result = $this->conn->query($query);
-    
-        if ($result) {
-            echo "Query executed successfully";
-        } else {
-            echo "Query failed: " . $this->conn->error;
-        }
-    
-        return $result;
+
+        return $this->conn->query($query);
     }
 
     public function deleteStudent($studentID) {
@@ -155,20 +135,36 @@ class StudentManager {
         }
     }
 
-    public function getStudents() {
-        $students = array();
-        $query = "SELECT * FROM Students";
-        $result = $this->conn->query($query);
+    public function getStudents($filters = []) {
+    $query = "SELECT * FROM Students WHERE 1=1";
+    $params = [];
+    $types = '';
 
-        if ($result) {
-            while($row = $result->fetch_assoc()) {
-                $students[] = new Student($row);
-            }
-        } else {
-            echo "Query failed: " . $this->conn->error;
-        }
-
-        return $students;
+    if (!empty($filters['search'])) {
+        $query .= " AND (LastName LIKE ? OR FirstName LIKE ?)";
+        $searchTerm = '%' . $filters['search'] . '%';
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $types .= 'ss';
     }
+
+    // Добавьте другие фильтры аналогично...
+
+    $stmt = $this->conn->prepare($query);
+    
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $students = [];
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row; // Возвращаем ассоциативный массив вместо объекта
+    }
+
+    return $students;
+}
 }
 ?>
