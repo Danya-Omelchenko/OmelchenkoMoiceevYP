@@ -1,4 +1,4 @@
-<?
+<?php
 class RiskGroup {
     public $riskGroupID;
     public $studentID;
@@ -29,23 +29,136 @@ class RiskGroupManager {
     }
 
     public function addToRiskGroup(RiskGroup $riskGroup) {
-        if (empty($riskGroup->studentID) || empty($riskGroup->type) || empty($riskGroup->registrationDate)) {
-            throw new Exception("Обязательные поля не заполнены");
+        $requiredFields = ['studentID', 'type', 'registrationDate'];
+        foreach ($requiredFields as $field) {
+            if (empty($riskGroup->$field)) {
+                throw new Exception("Обязательное поле '$field' не заполнено");
+            }
         }
 
-        $removalDate = !empty($riskGroup->removalDate) ? "'{$riskGroup->removalDate}'" : 'NULL';
-        $removalReason = !empty($riskGroup->removalReason) ? "'{$riskGroup->removalReason}'" : 'NULL';
+        $query = "INSERT INTO RiskGroups (StudentID, Type, RegistrationDate, RegistrationReason, RemovalDate, RemovalReason, Notes)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        $query = "INSERT INTO RiskGroups (StudentID, Type, RegistrationDate, RegistrationReason, RemovalDate, RemovalReason, Notes) 
-                  VALUES ('{$riskGroup->studentID}', '{$riskGroup->type}', '{$riskGroup->registrationDate}', '{$riskGroup->registrationReason}', $removalDate, $removalReason, '{$riskGroup->notes}')";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("issssss",
+            $riskGroup->studentID,
+            $riskGroup->type,
+            $riskGroup->registrationDate,
+            $riskGroup->registrationReason,
+            $riskGroup->removalDate,
+            $riskGroup->removalReason,
+            $riskGroup->notes
+        );
 
-        $result = $this->conn->query($query);
+        return $stmt->execute();
+    }
 
-        if (!$result) {
-            throw new Exception("Ошибка при добавлении в группу риска: " . $this->conn->error);
+    public function editRiskGroup(RiskGroup $riskGroup) {
+        $requiredFields = ['studentID', 'type', 'registrationDate'];
+        foreach ($requiredFields as $field) {
+            if (empty($riskGroup->$field)) {
+                throw new Exception("Обязательное поле '$field' не заполнено");
+            }
         }
 
-        return $result;
+        $query = "UPDATE RiskGroups SET
+                  StudentID = ?,
+                  Type = ?,
+                  RegistrationDate = ?,
+                  RegistrationReason = ?,
+                  RemovalDate = ?,
+                  RemovalReason = ?,
+                  Notes = ?
+                  WHERE RiskGroupID = ?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("issssssi",
+            $riskGroup->studentID,
+            $riskGroup->type,
+            $riskGroup->registrationDate,
+            $riskGroup->registrationReason,
+            $riskGroup->removalDate,
+            $riskGroup->removalReason,
+            $riskGroup->notes,
+            $riskGroup->riskGroupID
+        );
+
+        return $stmt->execute();
+    }
+
+    public function getRiskGroups($filters = []) {
+        $query = "SELECT r.*, s.LastName, s.FirstName, s.MiddleName
+                  FROM RiskGroups r
+                  LEFT JOIN Students s ON r.StudentID = s.StudentID
+                  WHERE 1=1";
+
+        $params = [];
+        $types = '';
+
+        if (!empty($filters['studentID'])) {
+            $query .= " AND r.StudentID = ?";
+            $params[] = $filters['studentID'];
+            $types .= 'i';
+        }
+
+        if (!empty($filters['type'])) {
+            $query .= " AND r.Type LIKE ?";
+            $params[] = '%'.$filters['type'].'%';
+            $types .= 's';
+        }
+
+        if (!empty($filters['registrationDate'])) {
+            $query .= " AND r.RegistrationDate = ?";
+            $params[] = $filters['registrationDate'];
+            $types .= 's';
+        }
+
+        if (!empty($filters['registrationReason'])) {
+            $query .= " AND r.RegistrationReason LIKE ?";
+            $params[] = '%'.$filters['registrationReason'].'%';
+            $types .= 's';
+        }
+
+        if (!empty($filters['removalDate'])) {
+            $query .= " AND r.RemovalDate = ?";
+            $params[] = $filters['removalDate'];
+            $types .= 's';
+        }
+
+        if (!empty($filters['removalReason'])) {
+            $query .= " AND r.RemovalReason LIKE ?";
+            $params[] = '%'.$filters['removalReason'].'%';
+            $types .= 's';
+        }
+
+        if (!empty($filters['notes'])) {
+            $query .= " AND r.Notes LIKE ?";
+            $params[] = '%'.$filters['notes'].'%';
+            $types .= 's';
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $riskGroups = [];
+        while ($row = $result->fetch_assoc()) {
+            $riskGroups[] = $row;
+        }
+
+        return $riskGroups;
+    }
+
+    public function deleteRiskGroup($riskGroupID) {
+        $query = "DELETE FROM RiskGroups WHERE RiskGroupID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $riskGroupID);
+        return $stmt->execute();
     }
 }
 ?>

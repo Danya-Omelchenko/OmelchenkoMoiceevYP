@@ -1,4 +1,5 @@
-<?php class DisabledStudent {
+<?php
+class DisabledStudent {
     public $disabledStudentID;
     public $studentID;
     public $statusOrder;
@@ -26,22 +27,120 @@ class DisabledStudentManager {
     }
 
     public function addDisabledStudent(DisabledStudent $disabledStudent) {
-        if (empty($disabledStudent->studentID) || empty($disabledStudent->statusStart) || empty($disabledStudent->statusEnd)) {
-            throw new Exception("Обязательные поля не заполнены");
+        $requiredFields = ['studentID', 'statusStart', 'statusEnd'];
+        foreach ($requiredFields as $field) {
+            if (empty($disabledStudent->$field)) {
+                throw new Exception("Обязательное поле '$field' не заполнено");
+            }
         }
 
-        $query = "INSERT INTO DisabledStudents (StudentID, StatusOrder, StatusStart, StatusEnd, DisabilityType, Notes) 
-                  VALUES ('{$disabledStudent->studentID}', '{$disabledStudent->statusOrder}', '{$disabledStudent->statusStart}', '{$disabledStudent->statusEnd}', '{$disabledStudent->disabilityType}', '{$disabledStudent->notes}')";
+        $query = "INSERT INTO DisabledStudents (StudentID, StatusOrder, StatusStart, StatusEnd, DisabilityType, Notes)
+                  VALUES (?, ?, ?, ?, ?, ?)";
 
-        $result = $this->conn->query($query);
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("isssss",
+            $disabledStudent->studentID,
+            $disabledStudent->statusOrder,
+            $disabledStudent->statusStart,
+            $disabledStudent->statusEnd,
+            $disabledStudent->disabilityType,
+            $disabledStudent->notes
+        );
 
-        if (!$result) {
-            throw new Exception("Ошибка при добавлении: " . $this->conn->error);
-        }
-
-        return $result;
+        return $stmt->execute();
     }
 
-    // Другие методы по аналогии
+    public function editDisabledStudent(DisabledStudent $disabledStudent) {
+        $requiredFields = ['studentID', 'statusStart', 'statusEnd'];
+        foreach ($requiredFields as $field) {
+            if (empty($disabledStudent->$field)) {
+                throw new Exception("Обязательное поле '$field' не заполнено");
+            }
+        }
+
+        $query = "UPDATE DisabledStudents SET
+                  StudentID = ?,
+                  StatusOrder = ?,
+                  StatusStart = ?,
+                  StatusEnd = ?,
+                  DisabilityType = ?,
+                  Notes = ?
+                  WHERE DisabledStudentID = ?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("isssssi",
+            $disabledStudent->studentID,
+            $disabledStudent->statusOrder,
+            $disabledStudent->statusStart,
+            $disabledStudent->statusEnd,
+            $disabledStudent->disabilityType,
+            $disabledStudent->notes,
+            $disabledStudent->disabledStudentID
+        );
+
+        return $stmt->execute();
+    }
+
+    public function getDisabledStudents($filters = []) {
+        $query = "SELECT ds.*, s.LastName, s.FirstName, s.MiddleName
+                  FROM DisabledStudents ds
+                  LEFT JOIN Students s ON ds.StudentID = s.StudentID
+                  WHERE 1=1";
+
+        $params = [];
+        $types = '';
+
+        if (!empty($filters['studentID'])) {
+            $query .= " AND ds.StudentID = ?";
+            $params[] = $filters['studentID'];
+            $types .= 'i';
+        }
+
+        if (!empty($filters['statusOrder'])) {
+            $query .= " AND ds.StatusOrder LIKE ?";
+            $params[] = '%'.$filters['statusOrder'].'%';
+            $types .= 's';
+        }
+
+        if (!empty($filters['statusStart'])) {
+            $query .= " AND ds.StatusStart = ?";
+            $params[] = $filters['statusStart'];
+            $types .= 's';
+        }
+
+        if (!empty($filters['statusEnd'])) {
+            $query .= " AND ds.StatusEnd = ?";
+            $params[] = $filters['statusEnd'];
+            $types .= 's';
+        }
+
+        if (!empty($filters['disabilityType'])) {
+            $query .= " AND ds.DisabilityType LIKE ?";
+            $params[] = '%'.$filters['disabilityType'].'%';
+            $types .= 's';
+        }
+
+        if (!empty($filters['notes'])) {
+            $query .= " AND ds.Notes LIKE ?";
+            $params[] = '%'.$filters['notes'].'%';
+            $types .= 's';
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $students = [];
+        while ($row = $result->fetch_assoc()) {
+            $students[] = $row;
+        }
+
+        return $students;
+    }
 }
 ?>
