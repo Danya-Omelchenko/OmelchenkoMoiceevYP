@@ -241,7 +241,7 @@ tr:nth-child(even) {
     color: white;
 }
 .button.button-red{
-    width: 91%;
+    width: 160px;
 }
 .button-red:hover {
     background-color: #cc1411;

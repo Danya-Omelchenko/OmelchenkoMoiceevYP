@@ -1,50 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php'; // Подключение к базе данных
-
-// Инициализация переменных для фильтров
-$studentID = isset($_GET['studentID']) ? $_GET['studentID'] : '';
-$type = isset($_GET['type']) ? $_GET['type'] : '';
-$registrationDate = isset($_GET['registrationDate']) ? $_GET['registrationDate'] : '';
-$registrationReason = isset($_GET['registrationReason']) ? $_GET['registrationReason'] : '';
-$removalDate = isset($_GET['removalDate']) ? $_GET['removalDate'] : '';
-$removalReason = isset($_GET['removalReason']) ? $_GET['removalReason'] : '';
-$notes = isset($_GET['notes']) ? $_GET['notes'] : '';
-
-// Создание SQL-запроса с учетом фильтров
-$query = "SELECT * FROM RiskGroups WHERE 1=1";
-
-if (!empty($studentID)) {
-    $query .= " AND StudentID = '$studentID'";
-}
-
-if (!empty($type)) {
-    $query .= " AND Type LIKE '%$type%'";
-}
-
-if (!empty($registrationDate)) {
-    $query .= " AND RegistrationDate = '$registrationDate'";
-}
-
-if (!empty($registrationReason)) {
-    $query .= " AND RegistrationReason LIKE '%$registrationReason%'";
-}
-
-if (!empty($removalDate)) {
-    $query .= " AND RemovalDate = '$removalDate'";
-}
-
-if (!empty($removalReason)) {
-    $query .= " AND RemovalReason LIKE '%$removalReason%'";
-}
-
-if (!empty($notes)) {
-    $query .= " AND Notes LIKE '%$notes%'";
-}
-
-$result = $conn->query($query);
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -52,6 +8,7 @@ $result = $conn->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Группа риска</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -77,7 +34,7 @@ $result = $conn->query($query);
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php">ОВЗ</a></li>
             <li><a href="dormitories.php">Общежитие</a></li>
-            <li><a href="risk_groups.php">Группа риска</a></li>
+            <li><a href="risk_groups.php" class="active">Группа риска</a></li>
             <li><a href="sppp_meetings.php">СППП</a></li>
             <li><a href="svo_status.php">СВО</a></li>
             <li><a href="social_scholarships.php">Социальная стипендия</a></li>
@@ -85,62 +42,120 @@ $result = $conn->query($query);
     </nav>
     <main>
         <section>
-            <h2>Список студентов группы риска</h2>
-            <form method="get" action="risk_groups.php">
+            <h2>Группа риска</h2>
+
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <button onclick="showAddForm()" class="button button-blue">Добавить запись</button>
+            <?php endif; ?>
+
+            <!-- Форма фильтрации -->
+            <form id="filterForm">
                 <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента" value="<?php echo htmlspecialchars($studentID); ?>">
+                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
 
                 <label for="type">Тип:</label>
-                <input type="text" id="type" name="type" placeholder="Введите тип" value="<?php echo htmlspecialchars($type); ?>">
+                <input type="text" id="type" name="type" placeholder="Введите тип">
 
-                <label for="registrationDate">Дата постановки на учет:</label>
-                <input type="date" id="registrationDate" name="registrationDate" value="<?php echo htmlspecialchars($registrationDate); ?>">
+                <label for="registrationDate">Дата постановки:</label>
+                <input type="date" id="registrationDate" name="registrationDate">
 
-                <label for="registrationReason">Основание постановки на учет:</label>
-                <input type="text" id="registrationReason" name="registrationReason" placeholder="Введите основание" value="<?php echo htmlspecialchars($registrationReason); ?>">
+                <label for="registrationReason">Основание постановки:</label>
+                <input type="text" id="registrationReason" name="registrationReason" placeholder="Введите основание">
 
-                <label for="removalDate">Дата снятия с учета:</label>
-                <input type="date" id="removalDate" name="removalDate" value="<?php echo htmlspecialchars($removalDate); ?>">
+                <label for="removalDate">Дата снятия:</label>
+                <input type="date" id="removalDate" name="removalDate">
 
-                <label for="removalReason">Основание снятия с учета:</label>
-                <input type="text" id="removalReason" name="removalReason" placeholder="Введите основание" value="<?php echo htmlspecialchars($removalReason); ?>">
+                <label for="removalReason">Основание снятия:</label>
+                <input type="text" id="removalReason" name="removalReason" placeholder="Введите основание">
 
                 <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание" value="<?php echo htmlspecialchars($notes); ?>">
+                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
 
-                <button type="submit" class="button button-blue">Применить фильтры</button>
+                <button type="button" onclick="loadRiskGroups()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <table>
+            <!-- Форма добавления -->
+            <div id="addForm" style="display: none;">
+                <h3>Добавить запись в группу риска</h3>
+                <form id="addRiskGroupForm">
+                    <input type="hidden" name="add_risk_group" value="1">
+
+                    <label for="addStudentID">ID студента:</label>
+                    <input type="number" id="addStudentID" name="StudentID" required>
+
+                    <label for="addType">Тип:</label>
+                    <input type="text" id="addType" name="Type" required>
+
+                    <label for="addRegistrationDate">Дата постановки:</label>
+                    <input type="date" id="addRegistrationDate" name="RegistrationDate" required>
+
+                    <label for="addRegistrationReason">Основание постановки:</label>
+                    <input type="text" id="addRegistrationReason" name="RegistrationReason">
+
+                    <label for="addRemovalDate">Дата снятия:</label>
+                    <input type="date" id="addRemovalDate" name="RemovalDate">
+
+                    <label for="addRemovalReason">Основание снятия:</label>
+                    <input type="text" id="addRemovalReason" name="RemovalReason">
+
+                    <label for="addNotes">Примечание:</label>
+                    <input type="text" id="addNotes" name="Notes">
+
+                    <button type="button" onclick="addRiskGroup()" class="button button-blue">Добавить</button>
+                </form>
+            </div>
+
+            <!-- Форма редактирования -->
+            <div id="editForm" style="display: none;">
+                <h3>Редактировать запись</h3>
+                <form id="editRiskGroupForm">
+                    <input type="hidden" name="edit_risk_group" value="1">
+                    <input type="hidden" id="editRiskGroupID" name="RiskGroupID">
+
+                    <label for="editStudentID">ID студента:</label>
+                    <input type="number" id="editStudentID" name="StudentID" required>
+
+                    <label for="editType">Тип:</label>
+                    <input type="text" id="editType" name="Type" required>
+
+                    <label for="editRegistrationDate">Дата постановки:</label>
+                    <input type="date" id="editRegistrationDate" name="RegistrationDate" required>
+
+                    <label for="editRegistrationReason">Основание постановки:</label>
+                    <input type="text" id="editRegistrationReason" name="RegistrationReason">
+
+                    <label for="editRemovalDate">Дата снятия:</label>
+                    <input type="date" id="editRemovalDate" name="RemovalDate">
+
+                    <label for="editRemovalReason">Основание снятия:</label>
+                    <input type="text" id="editRemovalReason" name="RemovalReason">
+
+                    <label for="editNotes">Примечание:</label>
+                    <input type="text" id="editNotes" name="Notes">
+
+                    <button type="button" onclick="updateRiskGroup()" class="button button-blue">Сохранить</button>
+                </form>
+            </div>
+
+            <!-- Таблица с данными -->
+            <table id="riskGroupsTable">
                 <thead>
                     <tr>
-                        <th>ID студента</th>
+                        <th>ID</th>
+                        <th>Студент</th>
                         <th>Тип</th>
-                        <th>Дата постановки на учет</th>
-                        <th>Основание постановки на учет</th>
-                        <th>Дата снятия с учета</th>
-                        <th>Основание снятия с учета</th>
+                        <th>Дата постановки</th>
+                        <th>Основание постановки</th>
+                        <th>Дата снятия</th>
+                        <th>Основание снятия</th>
                         <th>Примечание</th>
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                            <th>Действия</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                <td>{$row['StudentID']}</td>
-                                <td>{$row['Type']}</td>
-                                <td>{$row['RegistrationDate']}</td>
-                                <td>{$row['RegistrationReason']}</td>
-                                <td>{$row['RemovalDate']}</td>
-                                <td>{$row['RemovalReason']}</td>
-                                <td>{$row['Notes']}</td>
-                            </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='7'>Нет данных о студентах группы риска</td></tr>";
-                    }
-                    ?>
+                    <!-- Данные загружаются через AJAX -->
                 </tbody>
             </table>
         </section>
@@ -148,5 +163,149 @@ $result = $conn->query($query);
     <footer>
         <p>&copy; Моисеев и Омельченко, 2025 Информационная система учебного заведения</p>
     </footer>
+
+    <script>
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function showEditForm(riskGroupID, studentID, type, registrationDate, registrationReason, removalDate, removalReason, notes) {
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('addForm').style.display = 'none';
+
+            document.getElementById('editRiskGroupID').value = riskGroupID;
+            document.getElementById('editStudentID').value = studentID;
+            document.getElementById('editType').value = type;
+            document.getElementById('editRegistrationDate').value = registrationDate;
+            document.getElementById('editRegistrationReason').value = registrationReason || '';
+            document.getElementById('editRemovalDate').value = removalDate || '';
+            document.getElementById('editRemovalReason').value = removalReason || '';
+            document.getElementById('editNotes').value = notes || '';
+        }
+
+        function addRiskGroup() {
+            const formData = $('#addRiskGroupForm').serialize();
+
+            $.ajax({
+                url: 'Controllers/risk_group_controller.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        loadRiskGroups();
+                        document.getElementById('addForm').style.display = 'none';
+                        $('#addRiskGroupForm')[0].reset();
+                    } else {
+                        alert(result.error || 'Ошибка при добавлении записи');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка: ' + error);
+                }
+            });
+        }
+
+        function updateRiskGroup() {
+            const formData = $('#editRiskGroupForm').serialize();
+
+            $.ajax({
+                url: 'Controllers/risk_group_controller.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        loadRiskGroups();
+                        document.getElementById('editForm').style.display = 'none';
+                    } else {
+                        alert(result.error || 'Ошибка при обновлении записи');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка: ' + error);
+                }
+            });
+        }
+
+        function deleteRiskGroup(riskGroupID) {
+            if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                $.ajax({
+                    url: 'Controllers/risk_group_controller.php',
+                    type: 'GET',
+                    data: { delete_id: riskGroupID },
+                    success: function(response) {
+                        const result = JSON.parse(response);
+                        if (result.success) {
+                            loadRiskGroups();
+                        } else {
+                            alert(result.error || 'Ошибка при удалении записи');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Ошибка: ' + error);
+                    }
+                });
+            }
+        }
+
+        function loadRiskGroups() {
+            $.ajax({
+                url: 'Controllers/risk_group_controller.php',
+                type: 'GET',
+                data: $('#filterForm').serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        let tableBody = '';
+                        response.data.forEach(function(group) {
+                            tableBody += `
+                                <tr>
+                                    <td>${group.RiskGroupID || ''}</td>
+                                    <td>${group.LastName || ''} ${group.FirstName || ''} ${group.MiddleName || ''} (ID: ${group.StudentID || ''})</td>
+                                    <td>${group.Type || ''}</td>
+                                    <td>${group.RegistrationDate || ''}</td>
+                                    <td>${group.RegistrationReason || ''}</td>
+                                    <td>${group.RemovalDate || ''}</td>
+                                    <td>${group.RemovalReason || ''}</td>
+                                    <td>${group.Notes || ''}</td>
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <td>
+                                        <button onclick="showEditForm(
+                                            ${group.RiskGroupID},
+                                            ${group.StudentID},
+                                            '${escapeSingleQuote(group.Type)}',
+                                            '${group.RegistrationDate}',
+                                            '${escapeSingleQuote(group.RegistrationReason)}',
+                                            '${group.RemovalDate}',
+                                            '${escapeSingleQuote(group.RemovalReason)}',
+                                            '${escapeSingleQuote(group.Notes)}'
+                                        )" class="button button-blue">Редактировать</button>
+                                    </td>
+                                    <?php endif; ?>
+                                </tr>
+                            `;
+                        });
+                        $('#riskGroupsTable tbody').html(tableBody);
+                    } else {
+                        alert(response.error || 'Ошибка при загрузке данных');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при загрузке данных: ' + error);
+                }
+            });
+        }
+
+        function escapeSingleQuote(str) {
+            return (str || '').replace(/'/g, "\\'");
+        }
+
+        $(document).ready(function() {
+            loadRiskGroups();
+        });
+    </script>
 </body>
 </html>

@@ -165,7 +165,7 @@ session_start();
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Данные будут загружаться через AJAX -->
+                    <!-- Данные загружаются через AJAX -->
                 </tbody>
             </table>
         </section>

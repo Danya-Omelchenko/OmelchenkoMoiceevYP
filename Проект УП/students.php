@@ -238,7 +238,9 @@ session_start();
             document.getElementById('editForm').style.display = 'none';
         }
 
-        function showEditForm(studentID, lastName, firstName, middleName, birthDate, gender, contactNumber, educationLevel, department, groupName, fundingType, admissionYear, graduationYear, dismissalInfo, dismissalDate, notes, parentsInfo, penalties) {
+        function showEditForm(studentID, lastName, firstName, middleName, birthDate, 
+        gender, contactNumber, educationLevel, department, groupName, fundingType, 
+        admissionYear, graduationYear, dismissalInfo, dismissalDate, notes, parentsInfo, penalties) {
             document.getElementById('editForm').style.display = 'block';
             document.getElementById('addForm').style.display = 'none';
 

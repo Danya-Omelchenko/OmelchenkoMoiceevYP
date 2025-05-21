@@ -1,40 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php'; // Подключение к базе данных
-
-// Инициализация переменных для фильтров
-$studentID = isset($_GET['studentID']) ? $_GET['studentID'] : '';
-$statusOrder = isset($_GET['statusOrder']) ? $_GET['statusOrder'] : '';
-$statusStart = isset($_GET['statusStart']) ? $_GET['statusStart'] : '';
-$statusEnd = isset($_GET['statusEnd']) ? $_GET['statusEnd'] : '';
-$notes = isset($_GET['notes']) ? $_GET['notes'] : '';
-
-// Создание SQL-запроса с учетом фильтров
-$query = "SELECT * FROM Orphans WHERE 1=1";
-
-if (!empty($studentID)) {
-    $query .= " AND StudentID = '$studentID'";
-}
-
-if (!empty($statusOrder)) {
-    $query .= " AND StatusOrder LIKE '%$statusOrder%'";
-}
-
-if (!empty($statusStart)) {
-    $query .= " AND StatusStart = '$statusStart'";
-}
-
-if (!empty($statusEnd)) {
-    $query .= " AND StatusEnd = '$statusEnd'";
-}
-
-if (!empty($notes)) {
-    $query .= " AND Notes LIKE '%$notes%'";
-}
-
-$result = $conn->query($query);
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -42,6 +8,7 @@ $result = $conn->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сироты</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -63,7 +30,7 @@ $result = $conn->query($query);
         <ul>
             <li><a href="index.php">Главная</a></li>
             <li><a href="students.php">Студенты</a></li>
-            <li><a href="orphans.php">Сироты</a></li>
+            <li><a href="orphans.php" class="active">Сироты</a></li>
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php">ОВЗ</a></li>
             <li><a href="dormitories.php">Общежитие</a></li>
@@ -75,52 +42,100 @@ $result = $conn->query($query);
     </nav>
     <main>
         <section>
-            <h2>Список сирот</h2>
-            <form method="get" action="orphans.php">
+            <h2>Студенты-сироты</h2>
+
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <button onclick="showAddForm()" class="button button-blue">Добавить запись</button>
+            <?php endif; ?>
+
+            <!-- Форма фильтрации -->
+            <form id="filterForm">
                 <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента" value="<?php echo htmlspecialchars($studentID); ?>">
+                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
 
                 <label for="statusOrder">Приказ о присвоении статуса:</label>
-                <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ" value="<?php echo htmlspecialchars($statusOrder); ?>">
+                <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ">
 
                 <label for="statusStart">Начало статуса:</label>
-                <input type="date" id="statusStart" name="statusStart" value="<?php echo htmlspecialchars($statusStart); ?>">
+                <input type="date" id="statusStart" name="statusStart">
 
                 <label for="statusEnd">Конец статуса:</label>
-                <input type="date" id="statusEnd" name="statusEnd" value="<?php echo htmlspecialchars($statusEnd); ?>">
+                <input type="date" id="statusEnd" name="statusEnd">
 
                 <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание" value="<?php echo htmlspecialchars($notes); ?>">
+                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
 
-                <button type="submit" class="button button-blue">Применить фильтры</button>
+                <button type="button" onclick="loadOrphans()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <table>
+            <!-- Форма добавления -->
+            <div id="addForm" style="display: none;">
+                <h3>Добавить запись о сироте</h3>
+                <form id="addOrphanForm">
+                    <input type="hidden" name="add_orphan" value="1">
+
+                    <label for="addStudentID">ID студента:</label>
+                    <input type="number" id="addStudentID" name="StudentID" required>
+
+                    <label for="addStatusOrder">Приказ о присвоении статуса:</label>
+                    <input type="text" id="addStatusOrder" name="StatusOrder">
+
+                    <label for="addStatusStart">Начало статуса:</label>
+                    <input type="date" id="addStatusStart" name="StatusStart" required>
+
+                    <label for="addStatusEnd">Конец статуса:</label>
+                    <input type="date" id="addStatusEnd" name="StatusEnd" required>
+
+                    <label for="addNotes">Примечание:</label>
+                    <input type="text" id="addNotes" name="Notes">
+
+                    <button type="button" onclick="addOrphan()" class="button button-blue">Добавить</button>
+                </form>
+            </div>
+
+            <!-- Форма редактирования -->
+            <div id="editForm" style="display: none;">
+                <h3>Редактировать запись о сироте</h3>
+                <form id="editOrphanForm">
+                    <input type="hidden" name="edit_orphan" value="1">
+                    <input type="hidden" id="editOrphanID" name="OrphanID">
+
+                    <label for="editStudentID">ID студента:</label>
+                    <input type="number" id="editStudentID" name="StudentID" required>
+
+                    <label for="editStatusOrder">Приказ о присвоении статуса:</label>
+                    <input type="text" id="editStatusOrder" name="StatusOrder">
+
+                    <label for="editStatusStart">Начало статуса:</label>
+                    <input type="date" id="editStatusStart" name="StatusStart" required>
+
+                    <label for="editStatusEnd">Конец статуса:</label>
+                    <input type="date" id="editStatusEnd" name="StatusEnd" required>
+
+                    <label for="editNotes">Примечание:</label>
+                    <input type="text" id="editNotes" name="Notes">
+
+                    <button type="button" onclick="updateOrphan()" class="button button-blue">Сохранить</button>
+                </form>
+            </div>
+
+            <!-- Таблица с данными -->
+            <table id="orphansTable">
                 <thead>
                     <tr>
-                        <th>ID студента</th>
-                        <th>Приказ о присвоении статуса</th>
+                        <th>ID</th>
+                        <th>Студент</th>
+                        <th>Приказ</th>
                         <th>Начало статуса</th>
                         <th>Конец статуса</th>
                         <th>Примечание</th>
+                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                            <th>Действия</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                <td>{$row['StudentID']}</td>
-                                <td>{$row['StatusOrder']}</td>
-                                <td>{$row['StatusStart']}</td>
-                                <td>{$row['StatusEnd']}</td>
-                                <td>{$row['Notes']}</td>
-                            </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='5'>Нет данных о сиротах</td></tr>";
-                    }
-                    ?>
+                    <!-- Данные загружаются через AJAX -->
                 </tbody>
             </table>
         </section>
@@ -128,5 +143,144 @@ $result = $conn->query($query);
     <footer>
         <p>&copy; Моисеев и Омельченко, 2025 Информационная система учебного заведения</p>
     </footer>
+
+    <script>
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function showEditForm(orphanID, studentID, statusOrder, statusStart, statusEnd, notes) {
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('addForm').style.display = 'none';
+
+            document.getElementById('editOrphanID').value = orphanID;
+            document.getElementById('editStudentID').value = studentID;
+            document.getElementById('editStatusOrder').value = statusOrder;
+            document.getElementById('editStatusStart').value = statusStart;
+            document.getElementById('editStatusEnd').value = statusEnd;
+            document.getElementById('editNotes').value = notes;
+        }
+
+        function addOrphan() {
+            const formData = $('#addOrphanForm').serialize();
+
+            $.ajax({
+                url: 'Controllers/orphans_controller.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        loadOrphans();
+                        document.getElementById('addForm').style.display = 'none';
+                        $('#addOrphanForm')[0].reset();
+                    } else {
+                        alert(result.error || 'Ошибка при добавлении записи');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка: ' + error);
+                }
+            });
+        }
+
+        function updateOrphan() {
+            const formData = $('#editOrphanForm').serialize();
+
+            $.ajax({
+                url: 'Controllers/orphans_controller.php',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    const result = JSON.parse(response);
+                    if (result.success) {
+                        loadOrphans();
+                        document.getElementById('editForm').style.display = 'none';
+                    } else {
+                        alert(result.error || 'Ошибка при обновлении записи');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка: ' + error);
+                }
+            });
+        }
+
+        function deleteOrphan(orphanID) {
+            if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                $.ajax({
+                    url: 'Controllers/orphans_controller.php',
+                    type: 'GET',
+                    data: { delete_id: orphanID },
+                    success: function(response) {
+                        const result = JSON.parse(response);
+                        if (result.success) {
+                            loadOrphans();
+                        } else {
+                            alert(result.error || 'Ошибка при удалении записи');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Ошибка: ' + error);
+                    }
+                });
+            }
+        }
+
+        function loadOrphans() {
+            $.ajax({
+                url: 'Controllers/orphans_controller.php',
+                type: 'GET',
+                data: $('#filterForm').serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        let tableBody = '';
+                        response.data.forEach(function(orphan) {
+                            tableBody += `
+                                <tr>
+                                    <td>${orphan.OrphanID || ''}</td>
+                                    <td>${orphan.LastName || ''} ${orphan.FirstName || ''} ${orphan.MiddleName || ''} (ID: ${orphan.StudentID || ''})</td>
+                                    <td>${orphan.StatusOrder || ''}</td>
+                                    <td>${orphan.StatusStart || ''}</td>
+                                    <td>${orphan.StatusEnd || ''}</td>
+                                    <td>${orphan.Notes || ''}</td>
+                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <td>
+                                        <button onclick="showEditForm(
+                                            ${orphan.OrphanID},
+                                            ${orphan.StudentID},
+                                            '${escapeSingleQuote(orphan.StatusOrder)}',
+                                            '${orphan.StatusStart}',
+                                            '${orphan.StatusEnd}',
+                                            '${escapeSingleQuote(orphan.Notes)}'
+                                        )" class="button button-blue">Редактировать</button>
+                                    </td>
+                                    <?php endif; ?>
+                                </tr>
+                            `;
+                        });
+                        $('#orphansTable tbody').html(tableBody);
+                    } else {
+                        alert(response.error || 'Ошибка при загрузке данных');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Ошибка при загрузке данных: ' + error);
+                }
+            });
+        }
+
+        function escapeSingleQuote(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/'/g, "\\'");
+        }
+
+        $(document).ready(function() {
+            loadOrphans();
+        });
+    </script>
 </body>
 </html>
