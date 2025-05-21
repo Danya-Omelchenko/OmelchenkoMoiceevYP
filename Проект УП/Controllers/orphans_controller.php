@@ -3,13 +3,13 @@ session_start();
 include '../db_connection.php';
 include '../models/OrphansManager.php';
 
-$orphansManager = new OrphansManager($conn);
+$orphanManager = new OrphanManager($conn);
 
-// Обработка добавления студента в общежитие
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_orphanStudent'])) {
+// Обработка добавления
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_orphan'])) {
     try {
         $orphan = new Orphan($_POST);
-        $result = $orphansManager->addOrphanStatus($orphan);
+        $result = $orphanManager->addOrphanStatus($orphan);
         echo json_encode(['success' => $result]);
         exit();
     } catch (Exception $e) {
@@ -18,11 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_orphanStudent']))
     }
 }
 
-// Обработка редактирования студента в общежитии
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_orphanStudent'])) {
+// Обработка редактирования
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_orphan'])) {
     try {
         $orphan = new Orphan($_POST);
-        $result = $orphansManager->editOrphanStatus($orphan);
+        $result = $orphanManager->editOrphanStatus($orphan);
         echo json_encode(['success' => $result]);
         exit();
     } catch (Exception $e) {
@@ -30,10 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_orphanStudent'])
         exit();
     }
 }
-
-// Получение списка статусов с фильтрами
+// Получение списка с фильтрами
 $filters = [
-    'orphanID' => $_GET['orphanID'] ?? '',
     'studentID' => $_GET['studentID'] ?? '',
     'statusOrder' => $_GET['statusOrder'] ?? '',
     'statusStart' => $_GET['statusStart'] ?? '',
@@ -41,8 +39,10 @@ $filters = [
     'notes' => $_GET['notes'] ?? ''
 ];
 
-$statuses = $statusManager->getOrphan($filters);
-
-// Возвращение данных в формате JSON
-echo json_encode(['success' => true, 'data' => $statuses]);
+try {
+    $orphans = $orphanManager->getOrphans($filters);
+    echo json_encode(['success' => true, 'data' => $orphans]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
 ?>

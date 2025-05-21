@@ -41,7 +41,7 @@ $filters = [
     'notes' => $_GET['notes'] ?? ''
 ];
 
-$statuses = $statusManager->getDormitory($filters);
+$statuses = $dormitoryManager->getDormitories($filters);
 
 // Возвращение данных в формате JSON
 echo json_encode(['success' => true, 'data' => $statuses]);

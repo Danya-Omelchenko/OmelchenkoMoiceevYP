@@ -3,13 +3,13 @@ session_start();
 include '../db_connection.php';
 include '../models/Social_scholarshipsManager.php';
 
-$socialScholarshipManager = new SocialScholarshipManager($conn);
+$scholarshipManager = new SocialScholarshipManager($conn);
 
-// Обработка добавления статуса
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_socialScholarship'])) {
+// Обработка добавления
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_scholarship'])) {
     try {
-        $socialScholarship = new SocialScholarship($_POST);
-        $result = $socialScholarshipManager->assignScholarship($socialScholarship);
+        $scholarship = new SocialScholarship($_POST);
+        $result = $scholarshipManager->assignScholarship($scholarship);
         echo json_encode(['success' => $result]);
         exit();
     } catch (Exception $e) {
@@ -18,11 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_socialScholarship
     }
 }
 
-// Обработка редактирования статуса
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_socialScholarship'])) {
+// Обработка редактирования
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_scholarship'])) {
     try {
-        $socialScholarship = new SocialScholarship($_POST);
-        $result = $socialScholarshipManager->editToScholarship($socialScholarship);
+        $scholarship = new SocialScholarship($_POST);
+        $result = $scholarshipManager->editScholarship($scholarship);
         echo json_encode(['success' => $result]);
         exit();
     } catch (Exception $e) {
@@ -31,18 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_socialScholarshi
     }
 }
 
-// Получение списка статусов с фильтрами
+// Обработка удаления
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['delete_id'])) {
+    try {
+        $result = $scholarshipManager->deleteScholarship($_GET['delete_id']);
+        echo json_encode(['success' => $result]);
+        exit();
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+        exit();
+    }
+}
+
+// Получение списка с фильтрами
 $filters = [
-    'scholarshipID' => $_GET['scholarshipID'] ?? '',
     'studentID' => $_GET['studentID'] ?? '',
     'documentBasis' => $_GET['documentBasis'] ?? '',
     'paymentStart' => $_GET['paymentStart'] ?? '',
-    'paymentEnd' => $_GET['paymentStart'] ?? '',
+    'paymentEnd' => $_GET['paymentEnd'] ?? '',
     'notes' => $_GET['notes'] ?? ''
 ];
 
-$statuses = $statusManager->getSocialScholarship($filters);
-
-// Возвращение данных в формате JSON
-echo json_encode(['success' => true, 'data' => $statuses]);
+try {
+    $scholarships = $scholarshipManager->getScholarships($filters);
+    echo json_encode(['success' => true, 'data' => $scholarships]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
 ?>
