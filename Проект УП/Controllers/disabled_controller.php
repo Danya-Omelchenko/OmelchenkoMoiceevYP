@@ -36,8 +36,8 @@ $filters = [
     'disabledStudentID' => $_GET['disabledStudentID'] ?? '',
     'studentID' => $_GET['studentID'] ?? '',
     'statusOrder' => $_GET['statusOrder'] ?? '',
-    'statusStart' => $_GET['dtatusStart'] ?? '',
-    'statusEnd' => $_GET['dtatusEnd'] ?? '',
+    'statusStart' => $_GET['statusStart'] ?? '',
+    'statusEnd' => $_GET['statusEnd'] ?? '',
     'disabilityType' => $_GET['disabilityType'] ?? '',
     'notes' => $_GET['notes'] ?? ''
 ];

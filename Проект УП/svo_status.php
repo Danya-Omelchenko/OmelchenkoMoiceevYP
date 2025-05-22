@@ -1,4 +1,4 @@
-<?
+<?php
 session_start();
 ?>
 <!DOCTYPE html>
@@ -49,7 +49,7 @@ session_start();
             <?php endif; ?>
 
             <!-- Форма фильтрации -->
-            <form id="filterForm" method="get" action="svo_status.php">
+            <form id="filterForm">
                 <label for="studentID">ID студента:</label>
                 <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
 
@@ -65,7 +65,7 @@ session_start();
                 <label for="notes">Примечание:</label>
                 <input type="text" id="notes" name="notes" placeholder="Введите примечание">
 
-                <button type="submit" class="button button-blue">Применить фильтры</button>
+                <button type="button" onclick="loadSVOStatuses()" class="button button-blue">Применить фильтры</button>
             </form>
 
             <!-- Форма добавления -->
@@ -166,7 +166,7 @@ session_start();
             const formData = $('#addStatusForm').serialize();
 
             $.ajax({
-                url: 'controllers/svo_status_controller.php',
+                url: 'Controllers/svo_status_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
@@ -187,7 +187,7 @@ session_start();
             const formData = $('#editStatusForm').serialize();
 
             $.ajax({
-                url: 'controllers/svo_status_controller.php',
+                url: 'Controllers/svo_status_controller.php',
                 type: 'POST',
                 data: formData,
                 success: function(response) {
@@ -204,10 +204,9 @@ session_start();
             });
         }
 
-        $(document).ready(function() {
-            // Загрузка данных при старте страницы
+        function loadSVOStatuses() {
             $.ajax({
-                url: 'controllers/svo_status_controller.php',
+                url: 'Controllers/svo_status_controller.php',
                 type: 'GET',
                 data: $('#filterForm').serialize(),
                 success: function(response) {
@@ -249,6 +248,11 @@ session_start();
                     alert('Ошибка: ' + error);
                 }
             });
+        }
+
+        $(document).ready(function() {
+            // Загрузка данных при старте страницы
+            loadSVOStatuses();
         });
     </script>
 </body>

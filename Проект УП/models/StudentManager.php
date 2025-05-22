@@ -148,7 +148,47 @@ class StudentManager {
         $types .= 'ss';
     }
 
-    // Добавить другие фильтры аналогично
+    if (!empty($filters['group'])) {
+        $query .= " AND GroupName = ?";
+        $params[] = $filters['group'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['department'])) {
+        $query .= " AND Department = ?";
+        $params[] = $filters['department'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['fundingType'])) {
+        $query .= " AND FundingType = ?";
+        $params[] = $filters['fundingType'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['admissionYear'])) {
+        $query .= " AND AdmissionYear = ?";
+        $params[] = $filters['admissionYear'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['graduationYear'])) {
+        $query .= " AND GraduationYear = ?";
+        $params[] = $filters['graduationYear'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['educationLevel'])) {
+        $query .= " AND EducationLevel = ?";
+        $params[] = $filters['educationLevel'];
+        $types .= 's';
+    }
+
+    if (!empty($filters['gender'])) {
+        $query .= " AND Gender = ?";
+        $params[] = $filters['gender'];
+        $types .= 's';
+    }
 
     $stmt = $this->conn->prepare($query);
     
@@ -161,7 +201,7 @@ class StudentManager {
 
     $students = [];
     while ($row = $result->fetch_assoc()) {
-        $students[] = $row; // Возвращаем ассоциативный массив вместо объекта
+        $students[] = $row;
     }
 
     return $students;

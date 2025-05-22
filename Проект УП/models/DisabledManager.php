@@ -82,65 +82,80 @@ class DisabledStudentManager {
     }
 
     public function getDisabledStudents($filters = []) {
-        $query = "SELECT ds.*, s.LastName, s.FirstName, s.MiddleName
-                  FROM DisabledStudents ds
-                  LEFT JOIN Students s ON ds.StudentID = s.StudentID
-                  WHERE 1=1";
+    $query = "SELECT ds.*, s.LastName, s.FirstName, s.MiddleName
+              FROM DisabledStudents ds
+              LEFT JOIN Students s ON ds.StudentID = s.StudentID
+              WHERE 1=1";
 
-        $params = [];
-        $types = '';
+    $params = [];
+    $types = '';
 
-        if (!empty($filters['studentID'])) {
-            $query .= " AND ds.StudentID = ?";
-            $params[] = $filters['studentID'];
-            $types .= 'i';
-        }
+    if (!empty($filters['studentID'])) {
+        $query .= " AND ds.StudentID = ?";
+        $params[] = $filters['studentID'];
+        $types .= 'i';
+    }
 
-        if (!empty($filters['statusOrder'])) {
-            $query .= " AND ds.StatusOrder LIKE ?";
-            $params[] = '%'.$filters['statusOrder'].'%';
-            $types .= 's';
-        }
+    if (!empty($filters['statusOrder'])) {
+        $query .= " AND ds.StatusOrder LIKE ?";
+        $params[] = '%'.$filters['statusOrder'].'%';
+        $types .= 's';
+    }
 
-        if (!empty($filters['statusStart'])) {
+    if (!empty($filters['statusStart'])) {
+        // Проверяем, является ли значение корректной датой
+        if (DateTime::createFromFormat('Y-m-d', $filters['statusStart']) !== false) {
             $query .= " AND ds.StatusStart = ?";
             $params[] = $filters['statusStart'];
             $types .= 's';
+        } else {
+            // Можно добавить обработку ошибки или логирование
+            error_log("Invalid statusStart date format: " . $filters['statusStart']);
         }
+    }
 
-        if (!empty($filters['statusEnd'])) {
+    if (!empty($filters['statusEnd'])) {
+        // Проверяем, является ли значение корректной датой
+        if (DateTime::createFromFormat('Y-m-d', $filters['statusEnd']) !== false) {
             $query .= " AND ds.StatusEnd = ?";
             $params[] = $filters['statusEnd'];
             $types .= 's';
+        } else {
+            // Можно добавить обработку ошибки или логирование
+            error_log("Invalid statusEnd date format: " . $filters['statusEnd']);
         }
-
-        if (!empty($filters['disabilityType'])) {
-            $query .= " AND ds.DisabilityType LIKE ?";
-            $params[] = '%'.$filters['disabilityType'].'%';
-            $types .= 's';
-        }
-
-        if (!empty($filters['notes'])) {
-            $query .= " AND ds.Notes LIKE ?";
-            $params[] = '%'.$filters['notes'].'%';
-            $types .= 's';
-        }
-
-        $stmt = $this->conn->prepare($query);
-
-        if (!empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $students = [];
-        while ($row = $result->fetch_assoc()) {
-            $students[] = $row;
-        }
-
-        return $students;
     }
+
+    if (!empty($filters['disabilityType'])) {
+        $query .= " AND ds.DisabilityType LIKE ?";
+        $params[] = '%'.$filters['disabilityType'].'%';
+        $types .= 's';
+    }
+
+    if (!empty($filters['notes'])) {
+        $query .= " AND ds.Notes LIKE ?";
+        $params[] = '%'.$filters['notes'].'%';
+        $types .= 's';
+    }
+
+    // Добавляем сортировку по умолчанию
+    $query .= " ORDER BY s.LastName, s.FirstName";
+
+    $stmt = $this->conn->prepare($query);
+
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $students = [];
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row;
+    }
+
+    return $students;
+}
 }
 ?>
