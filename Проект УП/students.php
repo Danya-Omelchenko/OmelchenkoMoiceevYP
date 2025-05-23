@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "auth_check.php";
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +18,17 @@ session_start();
                 <h1>Список студентов</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+                require_once "auth_check.php";
+                if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+                require_once "auth_check.php";
+                else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+                require_once "auth_check.php";
+                endif; ?>
             </div>
         </div>
     </header>
@@ -43,160 +49,257 @@ session_start();
     <main>
         <section>
             <h2>Список студентов</h2>
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+            require_once "auth_check.php";
+            if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить студента</button>
-            <?php endif; ?>
+            <?php
+            require_once "auth_check.php";
+            endif; ?>
 
             <!-- Форма для фильтров -->
             <form id="filterForm" method="get" action="students.php">
-                <label for="search">Поиск по имени или фамилии:</label>
-                <input type="text" id="search" name="search" placeholder="Введите имя или фамилию">
+                <div class="form-row">
+                    <label for="search">Поиск по имени или фамилии:</label>
+                    <input type="text" id="search" name="search" placeholder="Введите имя или фамилию">
+                </div>
 
-                <label for="group">Группа:</label>
-                <input type="text" id="group" name="group" placeholder="Введите группу">
+                <div class="form-row">
+                    <label for="group">Группа:</label>
+                    <input type="text" id="group" name="group" placeholder="Введите группу">
+                </div>
 
-                <label for="department">Отделение:</label>
-                <input type="text" id="department" name="department" placeholder="Введите отделение">
+                <div class="form-row">
+                    <label for="department">Отделение:</label>
+                    <input type="text" id="department" name="department" placeholder="Введите отделение">
+                </div>
 
-                <label for="fundingType">Финансирование:</label>
-                <input type="text" id="fundingType" name="fundingType" placeholder="Введите тип финансирования">
+                <div class="form-row">
+                    <label for="fundingType">Финансирование:</label>
+                    <input type="text" id="fundingType" name="fundingType" placeholder="Введите тип финансирования">
+                </div>
 
-                <label for="admissionYear">Год поступления:</label>
-                <input type="text" id="admissionYear" name="admissionYear" placeholder="Введите год поступления">
+                <div class="form-row">
+                    <label for="admissionYear">Год поступления:</label>
+                    <input type="text" id="admissionYear" name="admissionYear" placeholder="Введите год поступления">
+                </div>
 
-                <label for="graduationYear">Год окончания:</label>
-                <input type="text" id="graduationYear" name="graduationYear" placeholder="Введите год окончания">
+                <div class="form-row">
+                    <label for="graduationYear">Год окончания:</label>
+                    <input type="text" id="graduationYear" name="graduationYear" placeholder="Введите год окончания">
+                </div>
 
-                <label for="educationLevel">Образование:</label>
-                <input type="text" id="educationLevel" name="educationLevel" placeholder="Введите уровень образования">
+                <div class="form-row">
+                    <label for="educationLevel">Образование:</label>
+                    <input type="text" id="educationLevel" name="educationLevel" placeholder="Введите уровень образования">
+                </div>
 
-                <label for="gender">Пол:</label>
-                <input type="text" id="gender" name="gender" placeholder="Введите пол">
+                <div class="form-row">
+                    <label for="gender">Пол:</label>
+                    <input type="text" id="gender" name="gender" placeholder="Введите пол">
+                </div>
 
                 <button type="submit" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма для добавления студента -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить студента</h3>
-                <form id="addStudentForm">
-                    <input type="hidden" name="add_student" value="1">
-                    <label for="lastName">Фамилия:</label>
-                    <input type="text" id="lastName" name="LastName" required>
+            <!-- Модальное окно для добавления студента -->
+            <div id="addModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить студента</h3>
+                    <form id="addStudentForm">
+                        <input type="hidden" name="add_student" value="1">
 
-                    <label for="firstName">Имя:</label>
-                    <input type="text" id="firstName" name="FirstName" required>
+                        <div class="form-row">
+                            <label for="lastName">Фамилия:</label>
+                            <input type="text" id="lastName" name="LastName" required>
+                        </div>
 
-                    <label for="middleName">Отчество:</label>
-                    <input type="text" id="middleName" name="MiddleName" required>
+                        <div class="form-row">
+                            <label for="firstName">Имя:</label>
+                            <input type="text" id="firstName" name="FirstName" required>
+                        </div>
 
-                    <label for="birthDate">Дата рождения:</label>
-                    <input type="date" id="birthDate" name="BirthDate" required>
+                        <div class="form-row">
+                            <label for="middleName">Отчество:</label>
+                            <input type="text" id="middleName" name="MiddleName" required>
+                        </div>
 
-                    <label for="gender">Пол:</label>
-                    <input type="text" id="gender" name="Gender" required>
+                        <div class="form-row">
+                            <label for="birthDate">Дата рождения:</label>
+                            <input type="date" id="birthDate" name="BirthDate" required>
+                        </div>
 
-                    <label for="contactNumber">Контактный номер:</label>
-                    <input type="text" id="contactNumber" name="ContactNumber" required>
+                        <div class="form-row">
+                            <label for="gender">Пол:</label>
+                            <input type="text" id="gender" name="Gender" required>
+                        </div>
 
-                    <label for="educationLevel">Образование:</label>
-                    <input type="text" id="educationLevel" name="EducationLevel" required>
+                        <div class="form-row">
+                            <label for="contactNumber">Контактный номер:</label>
+                            <input type="text" id="contactNumber" name="ContactNumber" required>
+                        </div>
 
-                    <label for="department">Отделение:</label>
-                    <input type="text" id="department" name="Department" required>
+                        <div class="form-row">
+                            <label for="educationLevel">Образование:</label>
+                            <input type="text" id="educationLevel" name="EducationLevel" required>
+                        </div>
 
-                    <label for="groupName">Группа:</label>
-                    <input type="text" id="groupName" name="GroupName" required>
+                        <div class="form-row">
+                            <label for="department">Отделение:</label>
+                            <input type="text" id="department" name="Department" required>
+                        </div>
 
-                    <label for="fundingType">Финансирование:</label>
-                    <input type="text" id="fundingType" name="FundingType" required>
+                        <div class="form-row">
+                            <label for="groupName">Группа:</label>
+                            <input type="text" id="groupName" name="GroupName" required>
+                        </div>
 
-                    <label for="admissionYear">Год поступления:</label>
-                    <input type="text" id="admissionYear" name="AdmissionYear" required>
+                        <div class="form-row">
+                            <label for="fundingType">Финансирование:</label>
+                            <input type="text" id="fundingType" name="FundingType" required>
+                        </div>
 
-                    <label for="graduationYear">Год окончания:</label>
-                    <input type="text" id="graduationYear" name="GraduationYear">
+                        <div class="form-row">
+                            <label for="admissionYear">Год поступления:</label>
+                            <input type="text" id="admissionYear" name="AdmissionYear" required>
+                        </div>
 
-                    <label for="dismissalInfo">Информация об отчислении:</label>
-                    <input type="text" id="dismissalInfo" name="DismissalInfo">
+                        <div class="form-row">
+                            <label for="graduationYear">Год окончания:</label>
+                            <input type="text" id="graduationYear" name="GraduationYear">
+                        </div>
 
-                    <label for="dismissalDate">Дата отчисления:</label>
-                    <input type="date" id="dismissalDate" name="DismissalDate">
+                        <div class="form-row">
+                            <label for="dismissalInfo">Информация об отчислении:</label>
+                            <input type="text" id="dismissalInfo" name="DismissalInfo">
+                        </div>
 
-                    <label for="notes">Примечание:</label>
-                    <input type="text" id="notes" name="Notes">
+                        <div class="form-row">
+                            <label for="dismissalDate">Дата отчисления:</label>
+                            <input type="date" id="dismissalDate" name="DismissalDate">
+                        </div>
 
-                    <label for="parentsInfo">Информация о родителях:</label>
-                    <input type="text" id="parentsInfo" name="ParentsInfo">
+                        <div class="form-row">
+                            <label for="notes">Примечание:</label>
+                            <input type="text" id="notes" name="Notes">
+                        </div>
 
-                    <label for="penalties">Штрафы:</label>
-                    <input type="text" id="penalties" name="Penalties">
+                        <div class="form-row">
+                            <label for="parentsInfo">Информация о родителях:</label>
+                            <input type="text" id="parentsInfo" name="ParentsInfo">
+                        </div>
 
-                    <button type="button" onclick="addStudent()" class="button button-blue">Добавить</button>
-                </form>
+                        <div class="form-row">
+                            <label for="penalties">Штрафы:</label>
+                            <input type="text" id="penalties" name="Penalties">
+                        </div>
+
+                        <button type="button" onclick="addStudent()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма для редактирования студента -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать студента</h3>
-                <form id="editStudentForm">
-                    <input type="hidden" name="edit_student" value="1">
-                    <input type="hidden" id="editStudentID" name="StudentID">
-                    <label for="editLastName">Фамилия:</label>
-                    <input type="text" id="editLastName" name="LastName" required>
+            <!-- Модальное окно для редактирования студента -->
+            <div id="editModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать студента</h3>
+                    <form id="editStudentForm">
+                        <input type="hidden" name="edit_student" value="1">
+                        <input type="hidden" id="editStudentID" name="StudentID">
 
-                    <label for="editFirstName">Имя:</label>
-                    <input type="text" id="editFirstName" name="FirstName" required>
+                        <div class="form-row">
+                            <label for="editLastName">Фамилия:</label>
+                            <input type="text" id="editLastName" name="LastName" required>
+                        </div>
 
-                    <label for="editMiddleName">Отчество:</label>
-                    <input type="text" id="editMiddleName" name="MiddleName" required>
+                        <div class="form-row">
+                            <label for="editFirstName">Имя:</label>
+                            <input type="text" id="editFirstName" name="FirstName" required>
+                        </div>
 
-                    <label for="editBirthDate">Дата рождения:</label>
-                    <input type="date" id="editBirthDate" name="BirthDate" required>
+                        <div class="form-row">
+                            <label for="editMiddleName">Отчество:</label>
+                            <input type="text" id="editMiddleName" name="MiddleName" required>
+                        </div>
 
-                    <label for="editGender">Пол:</label>
-                    <input type="text" id="editGender" name="Gender" required>
+                        <div class="form-row">
+                            <label for="editBirthDate">Дата рождения:</label>
+                            <input type="date" id="editBirthDate" name="BirthDate" required>
+                        </div>
 
-                    <label for="editContactNumber">Контактный номер:</label>
-                    <input type="text" id="editContactNumber" name="ContactNumber" required>
+                        <div class="form-row">
+                            <label for="editGender">Пол:</label>
+                            <input type="text" id="editGender" name="Gender" required>
+                        </div>
 
-                    <label for="editEducationLevel">Образование:</label>
-                    <input type="text" id="editEducationLevel" name="EducationLevel" required>
+                        <div class="form-row">
+                            <label for="editContactNumber">Контактный номер:</label>
+                            <input type="text" id="editContactNumber" name="ContactNumber" required>
+                        </div>
 
-                    <label for="editDepartment">Отделение:</label>
-                    <input type="text" id="editDepartment" name="Department" required>
+                        <div class="form-row">
+                            <label for="editEducationLevel">Образование:</label>
+                            <input type="text" id="editEducationLevel" name="EducationLevel" required>
+                        </div>
 
-                    <label for="editGroupName">Группа:</label>
-                    <input type="text" id="editGroupName" name="GroupName" required>
+                        <div class="form-row">
+                            <label for="editDepartment">Отделение:</label>
+                            <input type="text" id="editDepartment" name="Department" required>
+                        </div>
 
-                    <label for="editFundingType">Финансирование:</label>
-                    <input type="text" id="editFundingType" name="FundingType" required>
+                        <div class="form-row">
+                            <label for="editGroupName">Группа:</label>
+                            <input type="text" id="editGroupName" name="GroupName" required>
+                        </div>
 
-                    <label for="editAdmissionYear">Год поступления:</label>
-                    <input type="text" id="editAdmissionYear" name="AdmissionYear" required>
+                        <div class="form-row">
+                            <label for="editFundingType">Финансирование:</label>
+                            <input type="text" id="editFundingType" name="FundingType" required>
+                        </div>
 
-                    <label for="editGraduationYear">Год окончания:</label>
-                    <input type="text" id="editGraduationYear" name="GraduationYear">
+                        <div class="form-row">
+                            <label for="editAdmissionYear">Год поступления:</label>
+                            <input type="text" id="editAdmissionYear" name="AdmissionYear" required>
+                        </div>
 
-                    <label for="editDismissalInfo">Информация об отчислении:</label>
-                    <input type="text" id="editDismissalInfo" name="DismissalInfo">
+                        <div class="form-row">
+                            <label for="editGraduationYear">Год окончания:</label>
+                            <input type="text" id="editGraduationYear" name="GraduationYear">
+                        </div>
 
-                    <label for="editDismissalDate">Дата отчисления:</label>
-                    <input type="date" id="editDismissalDate" name="DismissalDate">
+                        <div class="form-row">
+                            <label for="editDismissalInfo">Информация об отчислении:</label>
+                            <input type="text" id="editDismissalInfo" name="DismissalInfo">
+                        </div>
 
-                    <label for="editNotes">Примечание:</label>
-                    <input type="text" id="editNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="editDismissalDate">Дата отчисления:</label>
+                            <input type="date" id="editDismissalDate" name="DismissalDate">
+                        </div>
 
-                    <label for="editParentsInfo">Информация о родителях:</label>
-                    <input type="text" id="editParentsInfo" name="ParentsInfo">
+                        <div class="form-row">
+                            <label for="editNotes">Примечание:</label>
+                            <input type="text" id="editNotes" name="Notes">
+                        </div>
 
-                    <label for="editPenalties">Штрафы:</label>
-                    <input type="text" id="editPenalties" name="Penalties">
+                        <div class="form-row">
+                            <label for="editParentsInfo">Информация о родителях:</label>
+                            <input type="text" id="editParentsInfo" name="ParentsInfo">
+                        </div>
 
-                    <button type="button" onclick="editStudent()" class="button button-blue">Сохранить</button>
-                </form>
+                        <div class="form-row">
+                            <label for="editPenalties">Штрафы:</label>
+                            <input type="text" id="editPenalties" name="Penalties">
+                        </div>
+
+                        <button type="button" onclick="editStudent()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
+            <!-- Таблица со списком студентов -->
             <table id="studentsTable">
                 <thead>
                     <tr>
@@ -217,9 +320,13 @@ session_start();
                         <th>Примечание</th>
                         <th>Информация о родителях</th>
                         <th>Штрафы</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -234,15 +341,13 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
-        function showEditForm(studentID, lastName, firstName, middleName, birthDate, 
-        gender, contactNumber, educationLevel, department, groupName, fundingType, 
+        function showEditForm(studentID, lastName, firstName, middleName, birthDate,
+        gender, contactNumber, educationLevel, department, groupName, fundingType,
         admissionYear, graduationYear, dismissalInfo, dismissalDate, notes, parentsInfo, penalties) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editStudentID').value = studentID;
             document.getElementById('editLastName').value = lastName;
@@ -264,6 +369,17 @@ session_start();
             document.getElementById('editPenalties').value = penalties;
         }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
         function addStudent() {
             const formData = $('#addStudentForm').serialize();
 
@@ -274,6 +390,7 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         location.reload();
                     } else {
                         alert(result.error || 'Ошибка при добавлении студента');
@@ -295,6 +412,7 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         location.reload();
                     } else {
                         alert(result.error || 'Ошибка при обновлении студента');
@@ -358,7 +476,9 @@ session_start();
                                     <td>${student.Notes || ''}</td>
                                     <td>${student.ParentsInfo || ''}</td>
                                     <td>${student.Penalties || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${student.StudentID},
@@ -382,7 +502,9 @@ session_start();
                                         )" class="button button-blue">Редактировать</button>
                                         <button onclick="deleteStudent(${student.StudentID})" class="button button-red">Удалить</button>
                                     </td>
-                                    <?php endif; ?>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });
@@ -399,7 +521,7 @@ session_start();
         }
 
         // Функция для экранирования кавычек
-        function escapeSingleQuote(str) {
+        window.escapeSingleQuote = function(str) {
             return (str || '').replace(/'/g, "\\'");
         }
 

@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>Заседания СППП</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,106 +52,164 @@ session_start();
         <section>
             <h2>Заседания СППП</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить заседание</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="meetingDate">Дата заседания:</label>
-                <input type="date" id="meetingDate" name="meetingDate">
+                <div class="form-row">
+                    <label for="meetingDate">Дата заседания:</label>
+                    <input type="date" id="meetingDate" name="meetingDate">
+                </div>
 
-                <label for="callReason">Основание вызова:</label>
-                <input type="text" id="callReason" name="callReason" placeholder="Введите основание">
+                <div class="form-row">
+                    <label for="callReason">Основание вызова:</label>
+                    <input type="text" id="callReason" name="callReason" placeholder="Введите основание">
+                </div>
 
-                <label for="presentEmployees">Присутствовали сотрудники:</label>
-                <input type="text" id="presentEmployees" name="presentEmployees" placeholder="Введите сотрудников">
+                <div class="form-row">
+                    <label for="presentEmployees">Присутствовали сотрудники:</label>
+                    <input type="text" id="presentEmployees" name="presentEmployees" placeholder="Введите сотрудников">
+                </div>
 
-                <label for="presentRepresentatives">Присутствовали представители:</label>
-                <input type="text" id="presentRepresentatives" name="presentRepresentatives" placeholder="Введите представителей">
+                <div class="form-row">
+                    <label for="presentRepresentatives">Присутствовали представители:</label>
+                    <input type="text" id="presentRepresentatives" name="presentRepresentatives" placeholder="Введите представителей">
+                </div>
 
-                <label for="callCause">Причина вызова:</label>
-                <input type="text" id="callCause" name="callCause" placeholder="Введите причину">
+                <div class="form-row">
+                    <label for="callCause">Причина вызова:</label>
+                    <input type="text" id="callCause" name="callCause" placeholder="Введите причину">
+                </div>
 
-                <label for="decision">Решение:</label>
-                <input type="text" id="decision" name="decision" placeholder="Введите решение">
+                <div class="form-row">
+                    <label for="decision">Решение:</label>
+                    <input type="text" id="decision" name="decision" placeholder="Введите решение">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadMeetings()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить заседание СППП</h3>
-                <form id="addMeetingForm">
-                    <input type="hidden" name="add_meeting" value="1">
+            <!-- Модальное окно для добавления заседания -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить заседание СППП</h3>
+                    <form id="addMeetingForm">
+                        <input type="hidden" name="add_meeting" value="1">
 
+                        <div class="form-row">
                     <label for="addStudentID">ID студента:</label>
                     <input type="number" id="addStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addMeetingDate">Дата заседания:</label>
                     <input type="date" id="addMeetingDate" name="MeetingDate" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addCallReason">Основание вызова:</label>
                     <input type="text" id="addCallReason" name="CallReason" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addPresentEmployees">Присутствовали сотрудники:</label>
                     <input type="text" id="addPresentEmployees" name="PresentEmployees">
+                </div>
 
+                        <div class="form-row">
                     <label for="addPresentRepresentatives">Присутствовали представители:</label>
                     <input type="text" id="addPresentRepresentatives" name="PresentRepresentatives">
+                </div>
 
+                        <div class="form-row">
                     <label for="addCallCause">Причина вызова:</label>
                     <input type="text" id="addCallCause" name="CallCause">
+                </div>
 
+                        <div class="form-row">
                     <label for="addDecision">Решение:</label>
                     <input type="text" id="addDecision" name="Decision">
+                </div>
 
+                        <div class="form-row">
                     <label for="addNotes">Примечание:</label>
                     <input type="text" id="addNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="addMeeting()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addMeeting()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать заседание СППП</h3>
-                <form id="editMeetingForm">
-                    <input type="hidden" name="edit_meeting" value="1">
-                    <input type="hidden" id="editMeetingID" name="MeetingID">
+            <!-- Модальное окно для редактирования заседания -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать заседание СППП</h3>
+                    <form id="editMeetingForm">
+                        <input type="hidden" name="edit_meeting" value="1">
+                        <input type="hidden" id="editMeetingID" name="MeetingID">
 
+                        <div class="form-row">
                     <label for="editStudentID">ID студента:</label>
                     <input type="number" id="editStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editMeetingDate">Дата заседания:</label>
                     <input type="date" id="editMeetingDate" name="MeetingDate" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editCallReason">Основание вызова:</label>
                     <input type="text" id="editCallReason" name="CallReason" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editPresentEmployees">Присутствовали сотрудники:</label>
                     <input type="text" id="editPresentEmployees" name="PresentEmployees">
+                </div>
 
+                        <div class="form-row">
                     <label for="editPresentRepresentatives">Присутствовали представители:</label>
                     <input type="text" id="editPresentRepresentatives" name="PresentRepresentatives">
+                </div>
 
+                        <div class="form-row">
                     <label for="editCallCause">Причина вызова:</label>
                     <input type="text" id="editCallCause" name="CallCause">
+                </div>
 
+                        <div class="form-row">
                     <label for="editDecision">Решение:</label>
                     <input type="text" id="editDecision" name="Decision">
+                </div>
 
+                        <div class="form-row">
                     <label for="editNotes">Примечание:</label>
                     <input type="text" id="editNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="updateMeeting()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateMeeting()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -159,9 +225,13 @@ session_start();
                         <th>Причина</th>
                         <th>Решение</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -176,13 +246,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(meetingID, studentID, meetingDate, callReason, presentEmployees, presentRepresentatives, callCause, decision, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editMeetingID').value = meetingID;
             document.getElementById('editStudentID').value = studentID;
@@ -195,6 +263,17 @@ session_start();
             document.getElementById('editNotes').value = notes;
         }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
         function addMeeting() {
             const formData = $('#addMeetingForm').serialize();
 
@@ -205,8 +284,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         loadMeetings();
-                        document.getElementById('addForm').style.display = 'none';
                         $('#addMeetingForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении заседания');
@@ -228,8 +307,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         loadMeetings();
-                        document.getElementById('editForm').style.display = 'none';
                     } else {
                         alert(result.error || 'Ошибка при обновлении заседания');
                     }
@@ -282,7 +361,9 @@ session_start();
                                     <td>${meeting.CallCause || ''}</td>
                                     <td>${meeting.Decision || ''}</td>
                                     <td>${meeting.Notes || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${meeting.MeetingID},
@@ -295,9 +376,10 @@ session_start();
                                             '${escapeSingleQuote(meeting.Decision)}',
                                             '${escapeSingleQuote(meeting.Notes)}'
                                         )" class="button button-blue">Редактировать</button>
-                                        
                                     </td>
-                                    <?php endif; ?>
+                                    <?php
+                                    require_once "auth_check.php";
+                                    endif; ?>
                                 </tr>
                             `;
                         });

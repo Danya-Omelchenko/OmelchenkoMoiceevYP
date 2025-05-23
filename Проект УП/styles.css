@@ -275,9 +275,196 @@ tr:nth-child(even) {
     max-width: 400px;
 }
 
+/* Стили для модальных окон */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    overflow: auto;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.5s ease forwards;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-modal:hover {
+    color: #E41613;
+}
+
+/* Стили для форм в модальных окнах */
+.modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.modal form .form-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.modal form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.modal form input,
+.modal form textarea,
+.modal form select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.modal form input:focus,
+.modal form textarea:focus,
+.modal form select:focus {
+    border-color: #0060AC;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 96, 172, 0.3);
+}
+
+.modal form button {
+    align-self: center;
+    margin-top: 20px;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+/* Стили для формы фильтрации */
+#filterForm {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+#filterForm .form-row {
+    width: calc(33.33% - 15px);
+    margin-bottom: 15px;
+}
+
+#filterForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+#filterForm input,
+#filterForm select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#filterForm input:focus,
+#filterForm select:focus {
+    border-color: #0060AC;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0, 96, 172, 0.2);
+}
+
+#filterForm button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #0060AC;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: auto;
+    width: calc(33.33% - 15px);
+    max-height: 40px;
+    /* Кнопка всегда внизу по центру */
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    display: block;
+}
+
+#filterForm button:hover {
+    background-color: #005598;
+}
+
+/* Адаптация для различных экранов */
+@media (max-width: 1200px) {
+    #filterForm .form-row {
+        width: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 768px) {
+    #filterForm {
+        padding: 15px;
+    }
+
+    #filterForm .form-row {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    #filterForm button {
+        width: 100%;
+    }
+}
+
 /* Медиа-запросы для адаптации под мобильные устройства */
 @media (max-width: 1280px) {
-    
 
     header img {
         margin-right: 0;
@@ -309,6 +496,11 @@ tr:nth-child(even) {
     .sectionFlex div {
         width: 100%;
         margin-bottom: 1rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
     }
 }
 

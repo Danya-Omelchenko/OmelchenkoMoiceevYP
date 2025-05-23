@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>Группа риска</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,97 +52,135 @@ session_start();
         <section>
             <h2>Группа риска</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить запись</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="type">Тип:</label>
-                <input type="text" id="type" name="type" placeholder="Введите тип">
+                <div class="form-row">
+                    <label for="type">Тип:</label>
+                    <input type="text" id="type" name="type" placeholder="Введите тип">
+                </div>
 
-                <label for="registrationDate">Дата постановки:</label>
-                <input type="date" id="registrationDate" name="registrationDate">
+                <div class="form-row">
+                    <label for="registrationDate">Дата постановки:</label>
+                    <input type="date" id="registrationDate" name="registrationDate">
+                </div>
 
-                <label for="registrationReason">Основание постановки:</label>
-                <input type="text" id="registrationReason" name="registrationReason" placeholder="Введите основание">
+                <div class="form-row">
+                    <label for="registrationReason">Основание постановки:</label>
+                    <input type="text" id="registrationReason" name="registrationReason" placeholder="Введите основание">
+                </div>
 
-                <label for="removalDate">Дата снятия:</label>
-                <input type="date" id="removalDate" name="removalDate">
+                <div class="form-row">
+                    <label for="removalDate">Дата снятия:</label>
+                    <input type="date" id="removalDate" name="removalDate">
+                </div>
 
-                <label for="removalReason">Основание снятия:</label>
-                <input type="text" id="removalReason" name="removalReason" placeholder="Введите основание">
+                <div class="form-row">
+                    <label for="removalReason">Основание снятия:</label>
+                    <input type="text" id="removalReason" name="removalReason" placeholder="Введите основание">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadRiskGroups()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить запись в группу риска</h3>
-                <form id="addRiskGroupForm">
-                    <input type="hidden" name="add_risk_group" value="1">
+            <!-- Модальное окно для добавления записи -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить запись в группу риска</h3>
+                    <form id="addRiskGroupForm">
+                        <input type="hidden" name="add_risk_group" value="1">
 
-                    <label for="addStudentID">ID студента:</label>
-                    <input type="number" id="addStudentID" name="StudentID" required>
+                        <div class="form-row">
+                            <label for="addStudentID">ID студента:</label>
+                            <input type="number" id="addStudentID" name="StudentID" required>
+                        </div>
 
-                    <label for="addType">Тип:</label>
-                    <input type="text" id="addType" name="Type" required>
+                        <div class="form-row">
+                            <label for="addType">Тип:</label>
+                            <input type="text" id="addType" name="Type" required>
+                        </div>
 
-                    <label for="addRegistrationDate">Дата постановки:</label>
-                    <input type="date" id="addRegistrationDate" name="RegistrationDate" required>
+                        <div class="form-row">
+                            <label for="addRegistrationDate">Дата постановки:</label>
+                            <input type="date" id="addRegistrationDate" name="RegistrationDate" required>
+                        </div>
 
-                    <label for="addRegistrationReason">Основание постановки:</label>
-                    <input type="text" id="addRegistrationReason" name="RegistrationReason">
+                        <div class="form-row">
+                            <label for="addRegistrationReason">Основание постановки:</label>
+                            <input type="text" id="addRegistrationReason" name="RegistrationReason">
+                        </div>
 
-                    <label for="addRemovalDate">Дата снятия:</label>
-                    <input type="date" id="addRemovalDate" name="RemovalDate">
+                        <div class="form-row">
+                            <label for="addRemovalDate">Дата снятия:</label>
+                            <input type="date" id="addRemovalDate" name="RemovalDate">
+                        </div>
 
-                    <label for="addRemovalReason">Основание снятия:</label>
-                    <input type="text" id="addRemovalReason" name="RemovalReason">
+                        <div class="form-row">
+                            <label for="addRemovalReason">Основание снятия:</label>
+                            <input type="text" id="addRemovalReason" name="RemovalReason">
+                        </div>
 
-                    <label for="addNotes">Примечание:</label>
-                    <input type="text" id="addNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="addNotes">Примечание:</label>
+                            <input type="text" id="addNotes" name="Notes">
+                        </div>
 
-                    <button type="button" onclick="addRiskGroup()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addRiskGroup()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать запись</h3>
-                <form id="editRiskGroupForm">
-                    <input type="hidden" name="edit_risk_group" value="1">
-                    <input type="hidden" id="editRiskGroupID" name="RiskGroupID">
+            <!-- Модальное окно для редактирования записи -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать запись</h3>
+                    <form id="editRiskGroupForm">
+                        <input type="hidden" name="edit_risk_group" value="1">
+                        <input type="hidden" id="editRiskGroupID" name="RiskGroupID">
 
-                    <label for="editStudentID">ID студента:</label>
-                    <input type="number" id="editStudentID" name="StudentID" required>
+                        <label for="editStudentID">ID студента:</label>
+                        <input type="number" id="editStudentID" name="StudentID" required>
 
-                    <label for="editType">Тип:</label>
-                    <input type="text" id="editType" name="Type" required>
+                        <label for="editType">Тип:</label>
+                        <input type="text" id="editType" name="Type" required>
 
-                    <label for="editRegistrationDate">Дата постановки:</label>
-                    <input type="date" id="editRegistrationDate" name="RegistrationDate" required>
+                        <label for="editRegistrationDate">Дата постановки:</label>
+                        <input type="date" id="editRegistrationDate" name="RegistrationDate" required>
 
-                    <label for="editRegistrationReason">Основание постановки:</label>
-                    <input type="text" id="editRegistrationReason" name="RegistrationReason">
+                        <label for="editRegistrationReason">Основание постановки:</label>
+                        <input type="text" id="editRegistrationReason" name="RegistrationReason">
 
-                    <label for="editRemovalDate">Дата снятия:</label>
-                    <input type="date" id="editRemovalDate" name="RemovalDate">
+                        <label for="editRemovalDate">Дата снятия:</label>
+                        <input type="date" id="editRemovalDate" name="RemovalDate">
 
-                    <label for="editRemovalReason">Основание снятия:</label>
-                    <input type="text" id="editRemovalReason" name="RemovalReason">
+                        <label for="editRemovalReason">Основание снятия:</label>
+                        <input type="text" id="editRemovalReason" name="RemovalReason">
 
-                    <label for="editNotes">Примечание:</label>
-                    <input type="text" id="editNotes" name="Notes">
+                        <label for="editNotes">Примечание:</label>
+                        <input type="text" id="editNotes" name="Notes">
 
-                    <button type="button" onclick="updateRiskGroup()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateRiskGroup()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -149,9 +195,13 @@ session_start();
                         <th>Дата снятия</th>
                         <th>Основание снятия</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,13 +216,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(riskGroupID, studentID, type, registrationDate, registrationReason, removalDate, removalReason, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editRiskGroupID').value = riskGroupID;
             document.getElementById('editStudentID').value = studentID;
@@ -184,6 +232,17 @@ session_start();
             document.getElementById('editNotes').value = notes || '';
         }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
         function addRiskGroup() {
             const formData = $('#addRiskGroupForm').serialize();
 
@@ -194,8 +253,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         loadRiskGroups();
-                        document.getElementById('addForm').style.display = 'none';
                         $('#addRiskGroupForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении записи');
@@ -217,8 +276,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         loadRiskGroups();
-                        document.getElementById('editForm').style.display = 'none';
                     } else {
                         alert(result.error || 'Ошибка при обновлении записи');
                     }
@@ -270,7 +329,9 @@ session_start();
                                     <td>${group.RemovalDate || ''}</td>
                                     <td>${group.RemovalReason || ''}</td>
                                     <td>${group.Notes || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${group.RiskGroupID},
@@ -282,8 +343,11 @@ session_start();
                                             '${escapeSingleQuote(group.RemovalReason)}',
                                             '${escapeSingleQuote(group.Notes)}'
                                         )" class="button button-blue">Редактировать</button>
+                                        <button onclick="deleteRiskGroup(${group.RiskGroupID})" class="button button-red">Удалить</button>
                                     </td>
-                                    <?php endif; ?>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });

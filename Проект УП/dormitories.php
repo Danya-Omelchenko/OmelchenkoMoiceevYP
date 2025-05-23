@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>Общежитие</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,79 +52,119 @@ session_start();
         <section>
             <h2>Студенты в общежитии</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить запись</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="roomNumber">Номер комнаты:</label>
-                <input type="text" id="roomNumber" name="roomNumber" placeholder="Введите номер комнаты">
+                <div class="form-row">
+                    <label for="roomNumber">Номер комнаты:</label>
+                    <input type="text" id="roomNumber" name="roomNumber" placeholder="Введите номер комнаты">
+                </div>
 
-                <label for="checkInDate">Дата заселения:</label>
-                <input type="date" id="checkInDate" name="checkInDate">
+                <div class="form-row">
+                    <label for="checkInDate">Дата заселения:</label>
+                    <input type="date" id="checkInDate" name="checkInDate">
+                </div>
 
-                <label for="checkOutDate">Дата выселения:</label>
-                <input type="date" id="checkOutDate" name="checkOutDate">
+                <div class="form-row">
+                    <label for="checkOutDate">Дата выселения:</label>
+                    <input type="date" id="checkOutDate" name="checkOutDate">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadDormitories()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить запись о заселении</h3>
-                <form id="addDormitoryForm">
-                    <input type="hidden" name="add_dormitory" value="1">
+            <!-- Модальное окно для добавления записи -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить запись о заселении</h3>
+                    <form id="addDormitoryForm">
+                        <input type="hidden" name="add_dormitory" value="1">
 
-                    <label for="addStudentID">ID студента:</label>
-                    <input type="number" id="addStudentID" name="StudentID" required>
+                        <div class="form-row">
+                            <label for="addStudentID">ID студента:</label>
+                            <input type="number" id="addStudentID" name="StudentID" required>
+                        </div>
 
-                    <label for="addRoomNumber">Номер комнаты:</label>
-                    <input type="text" id="addRoomNumber" name="RoomNumber" required>
+                        <div class="form-row">
+                            <label for="addRoomNumber">Номер комнаты:</label>
+                            <input type="text" id="addRoomNumber" name="RoomNumber" required>
+                        </div>
 
-                    <label for="addCheckInDate">Дата заселения:</label>
-                    <input type="date" id="addCheckInDate" name="CheckInDate" required>
+                        <div class="form-row">
+                            <label for="addCheckInDate">Дата заселения:</label>
+                            <input type="date" id="addCheckInDate" name="CheckInDate" required>
+                        </div>
 
-                    <label for="addCheckOutDate">Дата выселения:</label>
-                    <input type="date" id="addCheckOutDate" name="CheckOutDate">
+                        <div class="form-row">
+                            <label for="addCheckOutDate">Дата выселения:</label>
+                            <input type="date" id="addCheckOutDate" name="CheckOutDate">
+                        </div>
 
-                    <label for="addNotes">Примечание:</label>
-                    <input type="text" id="addNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="addNotes">Примечание:</label>
+                            <input type="text" id="addNotes" name="Notes">
+                        </div>
 
-                    <button type="button" onclick="addDormitory()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addDormitory()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать запись о заселении</h3>
-                <form id="editDormitoryForm">
-                    <input type="hidden" name="edit_dormitory" value="1">
-                    <input type="hidden" id="editDormitoryID" name="DormitoryID">
+            <!-- Модальное окно для редактирования записи -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать запись о заселении</h3>
+                    <form id="editDormitoryForm">
+                        <input type="hidden" name="edit_dormitory" value="1">
+                        <input type="hidden" id="editDormitoryID" name="DormitoryID">
 
-                    <label for="editStudentID">ID студента:</label>
-                    <input type="number" id="editStudentID" name="StudentID" required>
+                        <div class="form-row">
+                            <label for="editStudentID">ID студента:</label>
+                            <input type="number" id="editStudentID" name="StudentID" required>
+                        </div>
 
-                    <label for="editRoomNumber">Номер комнаты:</label>
-                    <input type="text" id="editRoomNumber" name="RoomNumber" required>
+                        <div class="form-row">
+                            <label for="editRoomNumber">Номер комнаты:</label>
+                            <input type="text" id="editRoomNumber" name="RoomNumber" required>
+                        </div>
 
-                    <label for="editCheckInDate">Дата заселения:</label>
-                    <input type="date" id="editCheckInDate" name="CheckInDate" required>
+                        <div class="form-row">
+                            <label for="editCheckInDate">Дата заселения:</label>
+                            <input type="date" id="editCheckInDate" name="CheckInDate" required>
+                        </div>
 
-                    <label for="editCheckOutDate">Дата выселения:</label>
-                    <input type="date" id="editCheckOutDate" name="CheckOutDate">
+                        <div class="form-row">
+                            <label for="editCheckOutDate">Дата выселения:</label>
+                            <input type="date" id="editCheckOutDate" name="CheckOutDate">
+                        </div>
 
-                    <label for="editNotes">Примечание:</label>
-                    <input type="text" id="editNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="editNotes">Примечание:</label>
+                            <input type="text" id="editNotes" name="Notes">
+                        </div>
 
-                    <button type="button" onclick="updateDormitory()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateDormitory()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -129,9 +177,13 @@ session_start();
                         <th>Дата заселения</th>
                         <th>Дата выселения</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,13 +198,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(dormitoryID, studentID, roomNumber, checkInDate, checkOutDate, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editDormitoryID').value = dormitoryID;
             document.getElementById('editStudentID').value = studentID;
@@ -161,6 +211,17 @@ session_start();
             document.getElementById('editCheckOutDate').value = checkOutDate;
             document.getElementById('editNotes').value = notes;
         }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
 
         function addDormitory() {
             const formData = $('#addDormitoryForm').serialize();
@@ -172,8 +233,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         loadDormitories();
-                        document.getElementById('addForm').style.display = 'none';
                         $('#addDormitoryForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении записи');
@@ -195,9 +256,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         loadDormitories();
-                        document.getElementById('editForm').style.display = 'none';
-                        $('#addDormitoryForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при обновлении записи');
                     }
@@ -247,7 +307,9 @@ session_start();
                                     <td>${dormitory.CheckInDate || ''}</td>
                                     <td>${dormitory.CheckOutDate || ''}</td>
                                     <td>${dormitory.Notes || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${dormitory.DormitoryID},
@@ -256,8 +318,12 @@ session_start();
                                             '${dormitory.CheckInDate}',
                                             '${dormitory.CheckOutDate}',
                                             '${escapeSingleQuote(dormitory.Notes)}'
-                                        )" class="button button-blue">Редактировать</button>                                    </td>
-                                    <?php endif; ?>
+                                        )" class="button button-blue">Редактировать</button>
+                                        <button onclick="deleteDormitory(${dormitory.DormitoryID})" class="button button-red">Удалить</button>
+                                    </td>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });

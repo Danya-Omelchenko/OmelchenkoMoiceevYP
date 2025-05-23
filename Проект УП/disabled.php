@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>Инвалиды</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,88 +52,134 @@ session_start();
         <section>
             <h2>Студенты с инвалидностью</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить запись</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="statusOrder">Приказ о присвоении статуса:</label>
-                <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ">
+                <div class="form-row">
+                    <label for="statusOrder">Приказ о присвоении статуса:</label>
+                    <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ">
+                </div>
 
-                <label for="statusStart">Начало статуса:</label>
-                <input type="date" id="statusStart" name="statusStart">
+                <div class="form-row">
+                    <label for="statusStart">Начало статуса:</label>
+                    <input type="date" id="statusStart" name="statusStart">
+                </div>
 
-                <label for="statusEnd">Конец статуса:</label>
-                <input type="date" id="statusEnd" name="statusEnd">
+                <div class="form-row">
+                    <label for="statusEnd">Конец статуса:</label>
+                    <input type="date" id="statusEnd" name="statusEnd">
+                </div>
 
-                <label for="disabilityType">Вид инвалидности:</label>
-                <input type="text" id="disabilityType" name="disabilityType" placeholder="Введите вид инвалидности">
+                <div class="form-row">
+                    <label for="disabilityType">Вид инвалидности:</label>
+                    <input type="text" id="disabilityType" name="disabilityType" placeholder="Введите вид инвалидности">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadDisabledStudents()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить запись об инвалидности</h3>
-                <form id="addDisabledForm">
-                    <input type="hidden" name="add_disabledStudent" value="1">
+            <!-- Модальное окно для добавления записи -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить запись об инвалидности</h3>
+                    <form id="addDisabledForm">
+                        <input type="hidden" name="add_disabledStudent" value="1">
 
-                    <label for="addStudentID">ID студента:</label>
-                    <input type="number" id="addStudentID" name="StudentID" required>
+                        <div class="form-row">
+                            <label for="addStudentID">ID студента:</label>
+                            <input type="number" id="addStudentID" name="StudentID" required>
+                        </div>
 
-                    <label for="addStatusOrder">Приказ о присвоении статуса:</label>
-                    <input type="text" id="addStatusOrder" name="StatusOrder">
+                        <div class="form-row">
+                            <label for="addStatusOrder">Приказ о присвоении статуса:</label>
+                            <input type="text" id="addStatusOrder" name="StatusOrder">
+                        </div>
 
-                    <label for="addStatusStart">Начало статуса:</label>
-                    <input type="date" id="addStatusStart" name="StatusStart" required>
+                        <div class="form-row">
+                            <label for="addStatusStart">Начало статуса:</label>
+                            <input type="date" id="addStatusStart" name="StatusStart" required>
+                        </div>
 
-                    <label for="addStatusEnd">Конец статуса:</label>
-                    <input type="date" id="addStatusEnd" name="StatusEnd" required>
+                        <div class="form-row">
+                            <label for="addStatusEnd">Конец статуса:</label>
+                            <input type="date" id="addStatusEnd" name="StatusEnd" required>
+                        </div>
 
-                    <label for="addDisabilityType">Вид инвалидности:</label>
-                    <input type="text" id="addDisabilityType" name="DisabilityType">
+                        <div class="form-row">
+                            <label for="addDisabilityType">Вид инвалидности:</label>
+                            <input type="text" id="addDisabilityType" name="DisabilityType">
+                        </div>
 
-                    <label for="addNotes">Примечание:</label>
-                    <input type="text" id="addNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="addNotes">Примечание:</label>
+                            <input type="text" id="addNotes" name="Notes">
+                        </div>
 
-                    <button type="button" onclick="addDisabledStudent()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addDisabledStudent()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать запись об инвалидности</h3>
-                <form id="editDisabledForm">
-                    <input type="hidden" name="edit_disabledStudent" value="1">
-                    <input type="hidden" id="editDisabledStudentID" name="DisabledStudentID">
+            <!-- Модальное окно для редактирования записи -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать запись об инвалидности</h3>
+                    <form id="editDisabledForm">
+                        <input type="hidden" name="edit_disabledStudent" value="1">
+                        <input type="hidden" id="editDisabledStudentID" name="DisabledStudentID">
 
-                    <label for="editStudentID">ID студента:</label>
-                    <input type="number" id="editStudentID" name="StudentID" required>
+                        <div class="form-row">
+                            <label for="editStudentID">ID студента:</label>
+                            <input type="number" id="editStudentID" name="StudentID" required>
+                        </div>
 
-                    <label for="editStatusOrder">Приказ о присвоении статуса:</label>
-                    <input type="text" id="editStatusOrder" name="StatusOrder">
+                        <div class="form-row">
+                            <label for="editStatusOrder">Приказ о присвоении статуса:</label>
+                            <input type="text" id="editStatusOrder" name="StatusOrder">
+                        </div>
 
-                    <label for="editStatusStart">Начало статуса:</label>
-                    <input type="date" id="editStatusStart" name="StatusStart" required>
+                        <div class="form-row">
+                            <label for="editStatusStart">Начало статуса:</label>
+                            <input type="date" id="editStatusStart" name="StatusStart" required>
+                        </div>
 
-                    <label for="editStatusEnd">Конец статуса:</label>
-                    <input type="date" id="editStatusEnd" name="StatusEnd" required>
+                        <div class="form-row">
+                            <label for="editStatusEnd">Конец статуса:</label>
+                            <input type="date" id="editStatusEnd" name="StatusEnd" required>
+                        </div>
 
-                    <label for="editDisabilityType">Вид инвалидности:</label>
-                    <input type="text" id="editDisabilityType" name="DisabilityType">
+                        <div class="form-row">
+                            <label for="editDisabilityType">Вид инвалидности:</label>
+                            <input type="text" id="editDisabilityType" name="DisabilityType">
+                        </div>
 
-                    <label for="editNotes">Примечание:</label>
-                    <input type="text" id="editNotes" name="Notes">
+                        <div class="form-row">
+                            <label for="editNotes">Примечание:</label>
+                            <input type="text" id="editNotes" name="Notes">
+                        </div>
 
-                    <button type="button" onclick="updateDisabledStudent()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateDisabledStudent()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -139,9 +193,13 @@ session_start();
                         <th>Конец статуса</th>
                         <th>Вид инвалидности</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,13 +214,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(disabledStudentID, studentID, statusOrder, statusStart, statusEnd, disabilityType, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editDisabledStudentID').value = disabledStudentID;
             document.getElementById('editStudentID').value = studentID;
@@ -172,6 +228,17 @@ session_start();
             document.getElementById('editDisabilityType').value = disabilityType;
             document.getElementById('editNotes').value = notes;
         }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
 
         function addDisabledStudent() {
             const formData = $('#addDisabledForm').serialize();
@@ -183,8 +250,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         loadDisabledStudents();
-                        document.getElementById('addForm').style.display = 'none';
                         $('#addDisabledForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении записи');
@@ -206,8 +273,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         loadDisabledStudents();
-                        document.getElementById('editForm').style.display = 'none';
                     } else {
                         alert(result.error || 'Ошибка при обновлении записи');
                     }
@@ -258,7 +325,9 @@ session_start();
                                     <td>${student.StatusEnd || ''}</td>
                                     <td>${student.DisabilityType || ''}</td>
                                     <td>${student.Notes || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${student.DisabledStudentID},
@@ -268,8 +337,12 @@ session_start();
                                             '${student.StatusEnd}',
                                             '${escapeSingleQuote(student.DisabilityType)}',
                                             '${escapeSingleQuote(student.Notes)}'
-                                        )" class="button button-blue">Редактировать</button>                                    </td>
-                                    <?php endif; ?>
+                                        )" class="button button-blue">Редактировать</button>
+                                        <button onclick="deleteDisabledStudent(${student.DisabledStudentID})" class="button button-red">Удалить</button>
+                                    </td>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });

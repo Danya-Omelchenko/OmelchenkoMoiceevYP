@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Если пользователь уже авторизован, перенаправляем на главную
+if (isset($_SESSION['username']) && isset($_SESSION['role'])) {
+    header('Location: index.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Простая проверка входа (замените на реальную аутентификацию)
     $username = $_POST['username'];
@@ -10,7 +17,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === 'admin' && $password === 'password' && $role === 'admin') {
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;
-        header('Location: index.php');
+
+        // Перенаправляем на сохраненный URL или на главную
+        $redirect_url = isset($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : 'index.php';
+        unset($_SESSION['redirect_url']); // Удаляем сохраненный URL
+
+        header('Location: ' . $redirect_url);
+        exit;
+    } elseif ($username === 's1' && $password === '123' && $role === 'employee') {
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $role;
+
+        // Перенаправляем на сохраненный URL или на главную
+        $redirect_url = isset($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : 'index.php';
+        unset($_SESSION['redirect_url']); // Удаляем сохраненный URL
+
+        header('Location: ' . $redirect_url);
         exit;
     } else {
         $error = "Неверное имя пользователя или пароль";
@@ -48,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="admin">Администратор</option>
                     <option value="employee">Сотрудник</option>
                 </select>
-                
+
                 <button type="submit" class="button button-red1">Войти</button>
                 <?php if (isset($error)): ?>
                     <p style="color: red;"><?php echo $error; ?></p>

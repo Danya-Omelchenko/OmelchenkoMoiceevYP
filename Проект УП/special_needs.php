@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>ОВЗ</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,79 +52,119 @@ session_start();
         <section>
             <h2>Список студентов с ОВЗ</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить статус ОВЗ</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="statusOrder">Приказ о присвоении статуса:</label>
-                <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ">
+                <div class="form-row">
+                    <label for="statusOrder">Приказ о присвоении статуса:</label>
+                    <input type="text" id="statusOrder" name="statusOrder" placeholder="Введите приказ">
+                </div>
 
-                <label for="statusStart">Начало статуса:</label>
-                <input type="date" id="statusStart" name="statusStart">
+                <div class="form-row">
+                    <label for="statusStart">Начало статуса:</label>
+                    <input type="date" id="statusStart" name="statusStart">
+                </div>
 
-                <label for="statusEnd">Конец статуса:</label>
-                <input type="date" id="statusEnd" name="statusEnd">
+                <div class="form-row">
+                    <label for="statusEnd">Конец статуса:</label>
+                    <input type="date" id="statusEnd" name="statusEnd">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadSpecialNeeds()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить статус ОВЗ</h3>
-                <form id="addSpecialNeedsForm">
-                    <input type="hidden" name="add_special_needs" value="1">
+            <!-- Модальное окно для добавления статуса ОВЗ -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить статус ОВЗ</h3>
+                    <form id="addSpecialNeedsForm">
+                        <input type="hidden" name="add_special_needs" value="1">
 
+                        <div class="form-row">
                     <label for="addStudentID">ID студента:</label>
                     <input type="number" id="addStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addStatusOrder">Приказ о присвоении статуса:</label>
                     <input type="text" id="addStatusOrder" name="StatusOrder">
+                </div>
 
+                        <div class="form-row">
                     <label for="addStatusStart">Начало статуса:</label>
                     <input type="date" id="addStatusStart" name="StatusStart" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addStatusEnd">Конец статуса:</label>
                     <input type="date" id="addStatusEnd" name="StatusEnd" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addNotes">Примечание:</label>
                     <input type="text" id="addNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="addSpecialNeeds()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addSpecialNeeds()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать статус ОВЗ</h3>
-                <form id="editSpecialNeedsForm">
-                    <input type="hidden" name="edit_special_needs" value="1">
-                    <input type="hidden" id="editSpecialNeedsStudentID" name="SpecialNeedsStudentID">
+            <!-- Модальное окно для редактирования статуса ОВЗ -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать статус ОВЗ</h3>
+                    <form id="editSpecialNeedsForm">
+                        <input type="hidden" name="edit_special_needs" value="1">
+                        <input type="hidden" id="editSpecialNeedsStudentID" name="SpecialNeedsStudentID">
 
+                        <div class="form-row">
                     <label for="editStudentID">ID студента:</label>
                     <input type="number" id="editStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editStatusOrder">Приказ о присвоении статуса:</label>
                     <input type="text" id="editStatusOrder" name="StatusOrder">
+                </div>
 
+                        <div class="form-row">
                     <label for="editStatusStart">Начало статуса:</label>
                     <input type="date" id="editStatusStart" name="StatusStart" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editStatusEnd">Конец статуса:</label>
                     <input type="date" id="editStatusEnd" name="StatusEnd" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editNotes">Примечание:</label>
                     <input type="text" id="editNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="updateSpecialNeeds()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateSpecialNeeds()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -128,9 +176,13 @@ session_start();
                         <th>Начало статуса</th>
                         <th>Конец статуса</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,13 +197,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(specialNeedsStudentID, studentID, statusOrder, statusStart, statusEnd, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editSpecialNeedsStudentID').value = specialNeedsStudentID;
             document.getElementById('editStudentID').value = studentID;
@@ -160,6 +210,17 @@ session_start();
             document.getElementById('editStatusEnd').value = statusEnd;
             document.getElementById('editNotes').value = notes;
         }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
 
         function addSpecialNeeds() {
             const formData = $('#addSpecialNeedsForm').serialize();
@@ -171,8 +232,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('addModal');
                         loadSpecialNeeds();
-                        document.getElementById('addForm').style.display = 'none';
                         $('#addSpecialNeedsForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении статуса ОВЗ');
@@ -194,8 +255,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
+                        closeModal('editModal');
                         loadSpecialNeeds();
-                        document.getElementById('editForm').style.display = 'none';
                     } else {
                         alert(result.error || 'Ошибка при обновлении статуса ОВЗ');
                     }
@@ -244,19 +305,23 @@ session_start();
                                     <td>${specialNeeds.StatusStart || ''}</td>
                                     <td>${specialNeeds.StatusEnd || ''}</td>
                                     <td>${specialNeeds.Notes || ''}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${specialNeeds.SpecialNeedsStudentID},
                                             ${specialNeeds.StudentID},
-                                            '${specialNeeds.StatusOrder}',
-                                            '${specialNeeds.StatusStart}',
-                                            '${specialNeeds.StatusEnd}',
-                                            '${escapeSingleQuote(specialNeeds.Notes)}'
+                                            '${specialNeeds.StatusOrder ? specialNeeds.StatusOrder.replace(/'/g, "\\'") : ''}',
+                                            '${specialNeeds.StatusStart ? specialNeeds.StatusStart.replace(/'/g, "\\'") : ''}',
+                                            '${specialNeeds.StatusEnd ? specialNeeds.StatusEnd.replace(/'/g, "\\'") : ''}',
+                                            '${specialNeeds.Notes ? specialNeeds.Notes.replace(/'/g, "\\'") : ''}'
                                         )" class="button button-blue">Редактировать</button>
-                                        
+                                        <button onclick="deleteSpecialNeeds(${specialNeeds.SpecialNeedsStudentID})" class="button button-red">Удалить</button>
                                     </td>
-                                    <?php endif; ?>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });
@@ -270,10 +335,6 @@ session_start();
                     alert('Ошибка при загрузке данных: ' + error);
                 }
             });
-        }
-
-        function escapeSingleQuote(str) {
-            return (str || '').replace(/'/g, "\\'");
         }
 
         $(document).ready(function() {

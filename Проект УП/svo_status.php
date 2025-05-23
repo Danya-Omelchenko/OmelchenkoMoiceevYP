@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once "auth_check.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -18,11 +20,17 @@ session_start();
                 <h1>Статус СВО</h1>
             </div>
             <div class="login-button">
-                <?php if (isset($_SESSION['username'])): ?>
+                <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['username'])): ?>
                     <a href="logout.php" class="button button-red">Выйти</a>
-                <?php else: ?>
+                <?php
+require_once "auth_check.php";
+ else: ?>
                     <a href="login.php" class="button button-red">Войти</a>
-                <?php endif; ?>
+                <?php
+require_once "auth_check.php";
+ endif; ?>
             </div>
         </div>
     </header>
@@ -44,79 +52,119 @@ session_start();
         <section>
             <h2>Статусы СВО студентов</h2>
 
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <button onclick="showAddForm()" class="button button-blue">Добавить статус СВО</button>
-            <?php endif; ?>
+            <?php
+require_once "auth_check.php";
+ endif; ?>
 
             <!-- Форма фильтрации -->
             <form id="filterForm">
-                <label for="studentID">ID студента:</label>
-                <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                <div class="form-row">
+                    <label for="studentID">ID студента:</label>
+                    <input type="text" id="studentID" name="studentID" placeholder="Введите ID студента">
+                </div>
 
-                <label for="documentBasis">Документ основание:</label>
-                <input type="text" id="documentBasis" name="documentBasis" placeholder="Введите документ">
+                <div class="form-row">
+                    <label for="documentBasis">Документ основание:</label>
+                    <input type="text" id="documentBasis" name="documentBasis" placeholder="Введите документ">
+                </div>
 
-                <label for="statusStart">Начало статуса:</label>
-                <input type="date" id="statusStart" name="statusStart">
+                <div class="form-row">
+                    <label for="statusStart">Начало статуса:</label>
+                    <input type="date" id="statusStart" name="statusStart">
+                </div>
 
-                <label for="statusEnd">Конец статуса:</label>
-                <input type="date" id="statusEnd" name="statusEnd">
+                <div class="form-row">
+                    <label for="statusEnd">Конец статуса:</label>
+                    <input type="date" id="statusEnd" name="statusEnd">
+                </div>
 
-                <label for="notes">Примечание:</label>
-                <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                <div class="form-row">
+                    <label for="notes">Примечание:</label>
+                    <input type="text" id="notes" name="notes" placeholder="Введите примечание">
+                </div>
 
                 <button type="button" onclick="loadSVOStatuses()" class="button button-blue">Применить фильтры</button>
             </form>
 
-            <!-- Форма добавления -->
-            <div id="addForm" style="display: none;">
-                <h3>Добавить статус СВО</h3>
-                <form id="addStatusForm">
-                    <input type="hidden" name="add_status" value="1">
+            <!-- Модальное окно для добавления статуса -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('addModal')">&times;</span>
+                    <h3>Добавить статус СВО</h3>
+                    <form id="addStatusForm">
+                        <input type="hidden" name="add_status" value="1">
 
+                        <div class="form-row">
                     <label for="addStudentID">ID студента:</label>
                     <input type="number" id="addStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addDocumentBasis">Документ основание:</label>
                     <input type="text" id="addDocumentBasis" name="DocumentBasis" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addStatusStart">Начало статуса:</label>
                     <input type="date" id="addStatusStart" name="StatusStart" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addStatusEnd">Конец статуса:</label>
                     <input type="date" id="addStatusEnd" name="StatusEnd" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="addNotes">Примечание:</label>
                     <input type="text" id="addNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="addStatus()" class="button button-blue">Добавить</button>
-                </form>
+                        <button type="button" onclick="addStatus()" class="button button-blue">Добавить</button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Форма редактирования -->
-            <div id="editForm" style="display: none;">
-                <h3>Редактировать статус СВО</h3>
-                <form id="editStatusForm">
-                    <input type="hidden" name="edit_status" value="1">
-                    <input type="hidden" id="editSVOStatusID" name="SVOStatusID">
+            <!-- Модальное окно для редактирования статуса -->
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal('editModal')">&times;</span>
+                    <h3>Редактировать статус СВО</h3>
+                    <form id="editStatusForm">
+                        <input type="hidden" name="edit_status" value="1">
+                        <input type="hidden" id="editSVOStatusID" name="SVOStatusID">
 
+                        <div class="form-row">
                     <label for="editStudentID">ID студента:</label>
                     <input type="number" id="editStudentID" name="StudentID" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editDocumentBasis">Документ основание:</label>
                     <input type="text" id="editDocumentBasis" name="DocumentBasis" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editStatusStart">Начало статуса:</label>
                     <input type="date" id="editStatusStart" name="StatusStart" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editStatusEnd">Конец статуса:</label>
                     <input type="date" id="editStatusEnd" name="StatusEnd" required>
+                </div>
 
+                        <div class="form-row">
                     <label for="editNotes">Примечание:</label>
                     <input type="text" id="editNotes" name="Notes">
+                </div>
 
-                    <button type="button" onclick="updateStatus()" class="button button-blue">Сохранить</button>
-                </form>
+                        <button type="button" onclick="updateStatus()" class="button button-blue">Сохранить</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Таблица с данными -->
@@ -129,9 +177,13 @@ session_start();
                         <th>Начало статуса</th>
                         <th>Конец статуса</th>
                         <th>Примечание</th>
-                        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                             <th>Действия</th>
-                        <?php endif; ?>
+                        <?php
+require_once "auth_check.php";
+ endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,13 +198,11 @@ session_start();
 
     <script>
         function showAddForm() {
-            document.getElementById('addForm').style.display = 'block';
-            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
         }
 
         function showEditForm(svoStatusID, studentID, documentBasis, statusStart, statusEnd, notes) {
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
 
             document.getElementById('editSVOStatusID').value = svoStatusID;
             document.getElementById('editStudentID').value = studentID;
@@ -161,6 +211,17 @@ session_start();
             document.getElementById('editStatusEnd').value = statusEnd;
             document.getElementById('editNotes').value = notes;
         }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
 
         function addStatus() {
             const formData = $('#addStatusForm').serialize();
@@ -172,7 +233,9 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
-                        location.reload();
+                        closeModal('addModal');
+                        loadSVOStatuses();
+                        $('#addStatusForm')[0].reset();
                     } else {
                         alert(result.error || 'Ошибка при добавлении статуса');
                     }
@@ -193,7 +256,8 @@ session_start();
                 success: function(response) {
                     const result = JSON.parse(response);
                     if (result.success) {
-                        location.reload();
+                        closeModal('editModal');
+                        loadSVOStatuses();
                     } else {
                         alert(result.error || 'Ошибка при обновлении статуса');
                     }
@@ -223,19 +287,23 @@ session_start();
                                     <td>${status.StatusStart}</td>
                                     <td>${status.StatusEnd}</td>
                                     <td>${status.Notes}</td>
-                                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <?php
+require_once "auth_check.php";
+ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                                     <td>
                                         <button onclick="showEditForm(
                                             ${status.SVOStatusID},
                                             ${status.StudentID},
-                                            '${status.DocumentBasis}',
+                                            '${status.DocumentBasis.replace(/'/g, "\\'").replace(/"/g, '&quot;')}',
                                             '${status.StatusStart}',
                                             '${status.StatusEnd}',
-                                            '${status.Notes}'
+                                            '${status.Notes ? status.Notes.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''}'
                                         )"
                                         class="button button-blue">Редактировать</button>
                                     </td>
-                                    <?php endif; ?>
+                                    <?php
+require_once "auth_check.php";
+ endif; ?>
                                 </tr>
                             `;
                         });
