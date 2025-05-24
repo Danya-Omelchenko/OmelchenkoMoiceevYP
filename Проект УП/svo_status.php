@@ -38,10 +38,12 @@ require_once "auth_check.php";
         <ul>
             <li><a href="index.php">Главная</a></li>
             <li><a href="students.php">Студенты</a></li>
+            <li><a href="departments.php">Отделения</a></li>
             <li><a href="orphans.php">Сироты</a></li>
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php">ОВЗ</a></li>
             <li><a href="dormitories.php">Общежитие</a></li>
+            <li><a href="rooms.php">Комнаты</a></li>
             <li><a href="risk_groups.php">Группа риска</a></li>
             <li><a href="sppp_meetings.php">СППП</a></li>
             <li><a href="svo_status.php" class="active">СВО</a></li>

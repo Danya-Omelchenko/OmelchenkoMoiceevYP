@@ -146,6 +146,14 @@ footer img {
 }
 
 /* Стили для форм и таблиц */
+.table_container {
+    max-width: 100%;   
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+#studentsTable {
+    border-collapse: collapse;
+}
 form {
     display: flex;
     flex-wrap: wrap;

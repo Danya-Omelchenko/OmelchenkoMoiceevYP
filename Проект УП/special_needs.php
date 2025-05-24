@@ -38,10 +38,12 @@ require_once "auth_check.php";
         <ul>
             <li><a href="index.php">Главная</a></li>
             <li><a href="students.php">Студенты</a></li>
+            <li><a href="departments.php">Отделения</a></li>
             <li><a href="orphans.php">Сироты</a></li>
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php" class="active">ОВЗ</a></li>
             <li><a href="dormitories.php">Общежитие</a></li>
+            <li><a href="rooms.php">Комнаты</a></li>
             <li><a href="risk_groups.php">Группа риска</a></li>
             <li><a href="sppp_meetings.php">СППП</a></li>
             <li><a href="svo_status.php">СВО</a></li>
@@ -317,7 +319,6 @@ require_once "auth_check.php";
                                             '${specialNeeds.StatusEnd ? specialNeeds.StatusEnd.replace(/'/g, "\\'") : ''}',
                                             '${specialNeeds.Notes ? specialNeeds.Notes.replace(/'/g, "\\'") : ''}'
                                         )" class="button button-blue">Редактировать</button>
-                                        <button onclick="deleteSpecialNeeds(${specialNeeds.SpecialNeedsStudentID})" class="button button-red">Удалить</button>
                                     </td>
                                     <?php
 require_once "auth_check.php";

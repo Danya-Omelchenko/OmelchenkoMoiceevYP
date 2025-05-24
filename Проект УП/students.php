@@ -36,10 +36,12 @@ require_once "auth_check.php";
         <ul>
             <li><a href="index.php">Главная</a></li>
             <li><a href="students.php" class="active">Студенты</a></li>
+            <li><a href="departments.php">Отделения</a></li>
             <li><a href="orphans.php">Сироты</a></li>
             <li><a href="disabled.php">Инвалиды</a></li>
             <li><a href="special_needs.php">ОВЗ</a></li>
             <li><a href="dormitories.php">Общежитие</a></li>
+            <li><a href="rooms.php">Комнаты</a></li>
             <li><a href="risk_groups.php">Группа риска</a></li>
             <li><a href="sppp_meetings.php">СППП</a></li>
             <li><a href="svo_status.php">СВО</a></li>
@@ -298,9 +300,9 @@ require_once "auth_check.php";
                     </form>
                 </div>
             </div>
-
-            <!-- Таблица со списком студентов -->
-            <table id="studentsTable">
+            <div class="table_container">
+                <!-- Таблица со списком студентов -->
+                <table id="studentsTable">
                 <thead>
                     <tr>
                         <th>Фамилия</th>
@@ -309,7 +311,7 @@ require_once "auth_check.php";
                         <th>Дата рождения</th>
                         <th>Пол</th>
                         <th>Контактный номер</th>
-                        <th>Образование</th>
+                        <th>Обр.</th>
                         <th>Отд.</th>
                         <th>Группа</th>
                         <th>Финанс.</th>
@@ -333,6 +335,7 @@ require_once "auth_check.php";
                     <!-- Данные будут загружены через AJAX -->
                 </tbody>
             </table>
+            </div>
         </section>
     </main>
     <footer>
